@@ -552,7 +552,7 @@ const RioNidoLodgeApp = () => {
   // Get signature experiences based on selected interests
   const getInterestBasedSignatureExperiences = () => {
     if (guestData.interests.length === 0) {
-      // If no interests selected, show first 3
+      // If no interests selected, show first 3 with variety
       return signatureExperiences.slice(0, 3);
     }
 
@@ -561,16 +561,53 @@ const RioNidoLodgeApp = () => {
       guestData.interests.includes(experience.category)
     );
 
-    // Then get remaining signature experiences
+    // Apply budget filtering to matching experiences
+    const budgetFilteredMatching = filterBusinessesByBudget(matchingExperiences, guestData.budget);
+
+    // Then get remaining signature experiences (different categories)
     const otherExperiences = signatureExperiences.filter(experience => 
       !guestData.interests.includes(experience.category)
     );
+    const budgetFilteredOthers = filterBusinessesByBudget(otherExperiences, guestData.budget);
 
-    // Combine them, prioritizing matching interests
-    const combined = [...matchingExperiences, ...otherExperiences];
+    // Create diverse mix: prioritize variety across categories and budgets
+    const diverseExperiences = [];
+    const usedCategories = new Set();
+    const usedBudgets = new Set();
+
+    // First pass: Add matching experiences with category/budget diversity
+    for (const exp of budgetFilteredMatching) {
+      if (diverseExperiences.length >= 3) break;
+      if (!usedCategories.has(exp.category) || usedCategories.size < guestData.interests.length) {
+        diverseExperiences.push(exp);
+        usedCategories.add(exp.category);
+        usedBudgets.add(exp.budget);
+      }
+    }
+
+    // Second pass: Fill remaining slots prioritizing budget diversity
+    const allAvailable = [...budgetFilteredMatching, ...budgetFilteredOthers];
+    for (const exp of allAvailable) {
+      if (diverseExperiences.length >= 3) break;
+      if (!diverseExperiences.includes(exp)) {
+        // Prefer experiences with different budget levels
+        if (!usedBudgets.has(exp.budget) || usedBudgets.size < 2) {
+          diverseExperiences.push(exp);
+          usedBudgets.add(exp.budget);
+        }
+      }
+    }
+
+    // Third pass: Fill any remaining slots with best remaining options
+    for (const exp of allAvailable) {
+      if (diverseExperiences.length >= 3) break;
+      if (!diverseExperiences.includes(exp)) {
+        diverseExperiences.push(exp);
+      }
+    }
     
-    // Return first 3
-    return combined.slice(0, 3);
+    // Return first 3 with maximum diversity
+    return diverseExperiences.slice(0, 3);
   };
 
   const handleInterestToggle = (interestId) => {
@@ -598,20 +635,46 @@ const RioNidoLodgeApp = () => {
       return;
     }
 
-    // Filter businesses by interests and budget
+    // Get all businesses filtered by interests and budget
     let relevantBusinesses = businessDatabase.filter(business => 
       guestData.interests.includes(business.category)
     );
-
-    // Apply budget filtering
     relevantBusinesses = filterBusinessesByBudget(relevantBusinesses, guestData.budget);
 
-    // Sort by rating and signature status
-    relevantBusinesses.sort((a, b) => {
-      if (a.isSignature && !b.isSignature) return -1;
-      if (!a.isSignature && b.isSignature) return 1;
-      return b.rating - a.rating;
-    });
+    // Separate signature experiences from regular activities
+    const availableSignatures = relevantBusinesses.filter(business => business.isSignature);
+    const regularActivities = relevantBusinesses.filter(business => !business.isSignature);
+
+    // Create diverse signature experience selection for itinerary
+    const diverseSignatures = [];
+    const usedCategories = new Set();
+    const usedBudgets = new Set();
+
+    // Prioritize diversity across categories and budgets
+    for (const sig of availableSignatures) {
+      if (diverseSignatures.length >= guestData.tripDuration) break;
+      
+      // Prefer experiences from different categories and budget levels
+      const categoryBonus = !usedCategories.has(sig.category) ? 2 : 0;
+      const budgetBonus = !usedBudgets.has(sig.budget) ? 1 : 0;
+      
+      if (diverseSignatures.length === 0 || categoryBonus > 0 || budgetBonus > 0) {
+        diverseSignatures.push(sig);
+        usedCategories.add(sig.category);
+        usedBudgets.add(sig.budget);
+      }
+    }
+
+    // Fill any remaining signature slots with best remaining options
+    for (const sig of availableSignatures) {
+      if (diverseSignatures.length >= guestData.tripDuration) break;
+      if (!diverseSignatures.includes(sig)) {
+        diverseSignatures.push(sig);
+      }
+    }
+
+    // Sort regular activities by rating
+    regularActivities.sort((a, b) => b.rating - a.rating);
 
     // Determine activities per day based on travel style
     const activitiesPerDay = {
@@ -621,24 +684,47 @@ const RioNidoLodgeApp = () => {
     };
 
     const dailyCount = activitiesPerDay[guestData.travelStyle] || 3;
-    const totalActivities = Math.min(relevantBusinesses.length, dailyCount * guestData.tripDuration);
 
-    // Create itinerary with proper day distribution
+    // Create itinerary with one signature experience per day (if available)
     const itinerary = [];
+    let regularActivityIndex = 0;
+
     for (let day = 1; day <= guestData.tripDuration; day++) {
       const dayActivities = [];
-      const startIndex = (day - 1) * dailyCount;
-      const endIndex = Math.min(startIndex + dailyCount, totalActivities);
-
-      for (let i = startIndex; i < endIndex; i++) {
-        if (relevantBusinesses[i]) {
-          dayActivities.push({
-            time: i === startIndex ? '9:00 AM' : (i === startIndex + 1 ? '1:00 PM' : '4:00 PM'),
-            activity: relevantBusinesses[i],
-            hasAlternates: guestData.allowAlternateDestinations && relevantBusinesses[i].alternateDestinations?.length > 0
-          });
-        }
+      
+      // Add ONE signature experience for this day (if available)
+      if (diverseSignatures[day - 1]) {
+        dayActivities.push({
+          time: '10:00 AM',
+          activity: diverseSignatures[day - 1],
+          hasAlternates: guestData.allowAlternateDestinations && diverseSignatures[day - 1].alternateDestinations?.length > 0,
+          isAnchorExperience: true
+        });
       }
+
+      // Fill remaining slots with regular activities
+      const remainingSlots = dailyCount - dayActivities.length;
+      const timeSlots = ['9:00 AM', '1:00 PM', '4:00 PM', '6:00 PM'];
+      
+      for (let i = 0; i < remainingSlots && regularActivityIndex < regularActivities.length; i++) {
+        // Skip the signature experience time slot
+        const timeIndex = dayActivities.length > 0 ? (i >= 1 ? i + 1 : 0) : i;
+        
+        dayActivities.push({
+          time: timeSlots[timeIndex] || `${3 + i}:00 PM`,
+          activity: regularActivities[regularActivityIndex],
+          hasAlternates: guestData.allowAlternateDestinations && regularActivities[regularActivityIndex].alternateDestinations?.length > 0,
+          isAnchorExperience: false
+        });
+        regularActivityIndex++;
+      }
+
+      // Sort activities by time for logical flow
+      dayActivities.sort((a, b) => {
+        const timeA = parseInt(a.time.split(':')[0]) + (a.time.includes('PM') && !a.time.includes('12:') ? 12 : 0);
+        const timeB = parseInt(b.time.split(':')[0]) + (b.time.includes('PM') && !b.time.includes('12:') ? 12 : 0);
+        return timeA - timeB;
+      });
 
       if (dayActivities.length > 0) {
         itinerary.push({
@@ -649,7 +735,8 @@ const RioNidoLodgeApp = () => {
             day: 'numeric' 
           }),
           activities: dayActivities,
-          totalActivities: dayActivities.length
+          totalActivities: dayActivities.length,
+          hasSignatureExperience: dayActivities.some(activity => activity.isAnchorExperience)
         });
       }
     }
@@ -858,8 +945,8 @@ const RioNidoLodgeApp = () => {
                 <h3 className="text-2xl font-bold text-gray-900 mb-3">Signature Experiences</h3>
                 <p className="text-gray-600 text-sm leading-relaxed max-w-sm mx-auto">
                   {guestData.interests.length > 0 
-                    ? 'Premium experiences curated for your interests' 
-                    : 'Select your interests above to see personalized recommendations'
+                    ? 'Premium anchor experiences - one per day to build your itinerary around' 
+                    : 'Select your interests above to see personalized day-anchoring experiences'
                   }
                 </p>
               </div>
@@ -909,8 +996,8 @@ const RioNidoLodgeApp = () => {
               <div className="mt-8 text-center">
                 <p className="text-xs text-gray-500 italic">
                   {guestData.interests.length > 0 
-                    ? 'Highlighted experiences match your selected interests' 
-                    : 'Select interests above to see personalized recommendations'
+                    ? 'Each signature experience becomes the anchor for one full day' 
+                    : 'Select interests above to see day-anchoring experiences'
                   }
                 </p>
               </div>
@@ -966,7 +1053,15 @@ const RioNidoLodgeApp = () => {
                   {currentDayData && (
                     <div>
                       <div className="mb-4">
-                        <h3 className="text-lg font-semibold text-gray-900">Day {currentDay}</h3>
+                        <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                          Day {currentDay}
+                          {currentDayData.hasSignatureExperience && (
+                            <span className="ml-2 text-xs px-2 py-1 rounded-full bg-purple-100 text-purple-600">
+                              <span className="mr-1">✨</span>
+                              Anchor Day
+                            </span>
+                          )}
+                        </h3>
                         <p className="text-gray-600">{currentDayData.date}</p>
                       </div>
 
@@ -984,7 +1079,7 @@ const RioNidoLodgeApp = () => {
                                   {item.activity.isSignature && (
                                     <span className="text-xs px-2 py-1 rounded-full bg-purple-50 text-purple-600">
                                       <span className="mr-1">✨</span>
-                                      Signature
+                                      {item.isAnchorExperience ? 'Anchor Experience' : 'Signature'}
                                     </span>
                                   )}
                                 </div>
