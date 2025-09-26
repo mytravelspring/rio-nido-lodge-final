@@ -16,6 +16,8 @@ const RioNidoLodgeApp = () => {
   const [itinerary, setItinerary] = useState(null);
   const [loading, setLoading] = useState(false);
   const [shareableLink, setShareableLink] = useState('');
+  const [selectedSignatureExperience, setSelectedSignatureExperience] = useState(null);
+  const [showSignatureModal, setShowSignatureModal] = useState(false);
 
   // Get current time for business hours
   const getCurrentHour = () => new Date().getHours();
@@ -83,6 +85,43 @@ const RioNidoLodgeApp = () => {
         category: "food",
         cluster: "downtown",
         hours: { open: 7, close: 14, timeAppropriate: ['morning', 'afternoon'] }
+      },
+      { 
+        name: "The Hot Box", 
+        type: "Gourmet Hot Dogs & Sandwiches", 
+        description: "Creative hot dogs and artisanal sandwiches with local ingredients", 
+        rating: 4.6, 
+        priceRange: "$",
+        localInsight: "The 'Russian River Dog' topped with local sauerkraut is a hidden menu item",
+        driveTime: "3 min walk",
+        category: "food",
+        cluster: "downtown",
+        hours: { open: 11, close: 19, timeAppropriate: ['afternoon', 'evening'] }
+      },
+      { 
+        name: "Terrapin Creek Cafe", 
+        type: "Coastal Fine Dining", 
+        description: "Award-winning restaurant featuring fresh Sonoma Coast cuisine", 
+        rating: 4.8, 
+        priceRange: "$$",
+        localInsight: "Chef Kenny Kan sources directly from local fishermen - menu changes with daily catch",
+        driveTime: "28 min drive",
+        category: "food",
+        cluster: "coastal",
+        hours: { open: 17, close: 21, timeAppropriate: ['evening'] },
+        signature: true
+      },
+      { 
+        name: "Spud Point Crab Company", 
+        type: "Waterfront Seafood Shack", 
+        description: "Family-owned crab shack with bay views and fresh Dungeness crab", 
+        rating: 4.5, 
+        priceRange: "$",
+        localInsight: "Come at sunset for the best crab sandwich and harbor views - cash only!",
+        driveTime: "26 min drive",
+        category: "food",
+        cluster: "coastal",
+        hours: { open: 9, close: 18, timeAppropriate: ['morning', 'afternoon'] }
       }
     ],
     coffee: [
@@ -91,7 +130,7 @@ const RioNidoLodgeApp = () => {
         type: "Local Coffee Roastery", 
         description: "Small-batch roastery with beans sourced from sustainable farms", 
         rating: 4.6, 
-        priceRange: "$$",
+        priceRange: "$",
         localInsight: "The owner personally travels to origin farms - try the Guatemala Huehuetenango",
         driveTime: "3 min walk",
         category: "coffee",
@@ -103,12 +142,24 @@ const RioNidoLodgeApp = () => {
         type: "Gourmet Market & Café", 
         description: "Artisanal market with exceptional coffee and baked goods", 
         rating: 4.4, 
-        priceRange: "$$",
+        priceRange: "$",
         localInsight: "Their biscuits are so famous, Food Network featured them twice",
         driveTime: "5 min walk",
         category: "coffee",
         cluster: "downtown",
         hours: { open: 8, close: 16, timeAppropriate: ['morning', 'afternoon'] }
+      },
+      { 
+        name: "River Electric", 
+        type: "Coffee Shop & Community Hub", 
+        description: "Local gathering spot with specialty coffee and community vibe", 
+        rating: 4.7, 
+        priceRange: "$",
+        localInsight: "The 'Russian River Roast' is their signature blend - locals gather here for morning gossip",
+        driveTime: "4 min walk",
+        category: "coffee",
+        cluster: "downtown",
+        hours: { open: 7, close: 17, timeAppropriate: ['morning', 'afternoon'] }
       }
     ],
     wine: [
@@ -238,6 +289,42 @@ const RioNidoLodgeApp = () => {
         category: "nature",
         cluster: "coastal",
         hours: { open: 9, close: 17, timeAppropriate: ['morning', 'afternoon'] }
+      },
+      { 
+        name: "Salmon Creek Beach", 
+        type: "Expansive Coastal Beach", 
+        description: "Two-mile stretch of sandy beach perfect for walking and beachcombing", 
+        rating: 4.6, 
+        priceRange: "Free",
+        localInsight: "North side is great for surfing, south side is family-friendly with calmer waters",
+        driveTime: "22 min drive",
+        category: "nature",
+        cluster: "coastal",
+        hours: { open: 6, close: 20, timeAppropriate: ['morning', 'afternoon', 'evening'] }
+      },
+      { 
+        name: "Bodega Head", 
+        type: "Dramatic Coastal Headland", 
+        description: "360-degree ocean views and prime whale watching location", 
+        rating: 4.8, 
+        priceRange: "Free",
+        localInsight: "Best whale watching from December-April - bring binoculars and warm clothes",
+        driveTime: "28 min drive",
+        category: "nature",
+        cluster: "coastal",
+        hours: { open: 6, close: 20, timeAppropriate: ['morning', 'afternoon', 'evening'] }
+      },
+      { 
+        name: "Doran Regional Park Beach", 
+        type: "Protected Harbor Beach", 
+        description: "Safest swimming beach with protected harbor location and picnic areas", 
+        rating: 4.5, 
+        priceRange: "$10 parking",
+        localInsight: "This is where locals bring kids to swim - much calmer than ocean beaches",
+        driveTime: "26 min drive",
+        category: "nature",
+        cluster: "coastal",
+        hours: { open: 8, close: 19, timeAppropriate: ['morning', 'afternoon'] }
       }
     ],
     shopping: [
@@ -246,7 +333,7 @@ const RioNidoLodgeApp = () => {
         type: "Vintage Treasures", 
         description: "Curated antiques and vintage finds in historic building", 
         rating: 4.3, 
-        priceRange: "$$",
+        priceRange: "$",
         localInsight: "The owner finds pieces from old Russian River estates - unique local history",
         driveTime: "3 min walk",
         category: "shopping",
@@ -264,6 +351,66 @@ const RioNidoLodgeApp = () => {
         category: "shopping",
         cluster: "coastal",
         hours: { open: 10, close: 17, timeAppropriate: ['morning', 'afternoon'] }
+      },
+      { 
+        name: "Andy's Local Market", 
+        type: "Family-Owned Grocery", 
+        description: "Family-owned Sebastopol grocery store since 1979 with local products", 
+        rating: 4.4, 
+        priceRange: "$",
+        localInsight: "Best selection of local wines and the staff knows every producer personally",
+        driveTime: "15 min drive",
+        category: "shopping",
+        cluster: "russian_river",
+        hours: { open: 7, close: 21, timeAppropriate: ['morning', 'afternoon', 'evening'] }
+      },
+      { 
+        name: "Oliver's Market", 
+        type: "Local Sonoma Chain", 
+        description: "Local Sonoma County market chain with gourmet and organic selections", 
+        rating: 4.2, 
+        priceRange: "$",
+        localInsight: "Their deli makes the best sandwiches for river picnics - try the 'Sonoma Turkey'",
+        driveTime: "12 min drive",
+        category: "shopping",
+        cluster: "russian_river",
+        hours: { open: 6, close: 22, timeAppropriate: ['morning', 'afternoon', 'evening'] }
+      },
+      { 
+        name: "Candy & Kites", 
+        type: "Bodega Bay Taffy Shop", 
+        description: "Classic seaside candy shop with homemade saltwater taffy and kites", 
+        rating: 4.7, 
+        priceRange: "$",
+        localInsight: "Watch them pull the taffy through the window - the lavender flavor uses local Sonoma lavender",
+        driveTime: "26 min drive",
+        category: "shopping",
+        cluster: "coastal",
+        hours: { open: 10, close: 18, timeAppropriate: ['morning', 'afternoon'] }
+      },
+      { 
+        name: "Bodega Country Store", 
+        type: "Coastal General Store", 
+        description: "Charming country store with local crafts, gifts, and coastal souvenirs", 
+        rating: 4.4, 
+        priceRange: "$",
+        localInsight: "The locally-made pottery section features pieces from Bodega Bay artists",
+        driveTime: "24 min drive",
+        category: "shopping",
+        cluster: "coastal",
+        hours: { open: 9, close: 17, timeAppropriate: ['morning', 'afternoon'] }
+      },
+      { 
+        name: "Diekmann's Bay Store", 
+        type: "Historic Fish Market & Deli", 
+        description: "70+ year Bodega Bay institution - fresh fish market and deli", 
+        rating: 4.6, 
+        priceRange: "$",
+        localInsight: "Buy fresh crab here and they'll clean it for free - locals' secret for the best price",
+        driveTime: "26 min drive",
+        category: "shopping",
+        cluster: "coastal",
+        hours: { open: 8, close: 17, timeAppropriate: ['morning', 'afternoon'] }
       }
     ]
   };
@@ -341,7 +488,7 @@ const RioNidoLodgeApp = () => {
     return 'evening';
   };
 
-  // Smart itinerary generation with proper day distribution
+  // Smart itinerary generation with proper day distribution - FIXED
   const generateItinerary = () => {
     setLoading(true);
     
@@ -354,6 +501,15 @@ const RioNidoLodgeApp = () => {
       }
     });
 
+    // If no interests selected, add some defaults to prevent empty days
+    if (allRecommendations.length === 0) {
+      allRecommendations = [
+        ...businessDatabase.food.slice(0, 2),
+        ...businessDatabase.nature.slice(0, 2),
+        ...businessDatabase.coffee.slice(0, 1)
+      ];
+    }
+
     // Filter by travel style (number of activities per day)
     const activitiesPerDay = {
       'relaxed': 3,
@@ -362,7 +518,6 @@ const RioNidoLodgeApp = () => {
     };
 
     const maxActivitiesPerDay = activitiesPerDay[guestData.travelStyle] || 4;
-    const totalActivities = maxActivitiesPerDay * guestData.tripDuration;
 
     // Score and sort recommendations
     const scoredRecommendations = allRecommendations.map(business => {
@@ -386,30 +541,37 @@ const RioNidoLodgeApp = () => {
     const uniqueRecommendations = scoredRecommendations
       .filter((business, index, self) => 
         index === self.findIndex(b => b.name === business.name))
-      .sort((a, b) => b.score - a.score)
-      .slice(0, totalActivities);
+      .sort((a, b) => b.score - a.score);
 
-    // **FIXED: Proper day distribution algorithm**
+    // **CRITICAL FIX: Proper day distribution algorithm**
     const distributedItinerary = [];
     
     for (let day = 1; day <= guestData.tripDuration; day++) {
+      // Calculate items for this specific day using round-robin distribution
       const dayActivities = [];
       
-      // Calculate items for this day
-      const startIndex = (day - 1) * maxActivitiesPerDay;
-      const endIndex = Math.min(startIndex + maxActivitiesPerDay, uniqueRecommendations.length);
-      
-      // Get activities for this day
-      const dayRecommendations = uniqueRecommendations.slice(startIndex, endIndex);
-      
-      // If we don't have enough activities, fill with remaining ones
-      if (dayRecommendations.length < maxActivitiesPerDay && uniqueRecommendations.length > endIndex) {
-        const remaining = uniqueRecommendations.slice(endIndex);
-        dayRecommendations.push(...remaining.slice(0, maxActivitiesPerDay - dayRecommendations.length));
+      // Use modulo to cycle through recommendations across days
+      for (let i = 0; i < maxActivitiesPerDay; i++) {
+        const recommendationIndex = ((day - 1) * maxActivitiesPerDay + i) % uniqueRecommendations.length;
+        if (recommendationIndex < uniqueRecommendations.length) {
+          dayActivities.push(uniqueRecommendations[recommendationIndex]);
+        }
       }
       
-      // Sort by optimal timing and location clustering
-      const sortedDayActivities = dayRecommendations.sort((a, b) => {
+      // If we still don't have enough activities, add more from the beginning
+      while (dayActivities.length < maxActivitiesPerDay && dayActivities.length < uniqueRecommendations.length) {
+        const remainingBusinesses = uniqueRecommendations.filter(
+          business => !dayActivities.find(activity => activity.name === business.name)
+        );
+        if (remainingBusinesses.length > 0) {
+          dayActivities.push(remainingBusinesses[0]);
+        } else {
+          break;
+        }
+      }
+      
+      // Sort activities by optimal timing and location clustering
+      const sortedDayActivities = dayActivities.sort((a, b) => {
         // Morning activities first
         if (a.hours.timeAppropriate.includes('morning') && !b.hours.timeAppropriate.includes('morning')) return -1;
         if (!a.hours.timeAppropriate.includes('morning') && b.hours.timeAppropriate.includes('morning')) return 1;
@@ -476,6 +638,117 @@ const RioNidoLodgeApp = () => {
     }));
   };
 
+  // Signature Experience Modal Component
+  const SignatureExperienceModal = () => {
+    if (!showSignatureModal || !selectedSignatureExperience) return null;
+    
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="p-8">
+            <div className="flex justify-between items-start mb-6">
+              <h2 className="text-3xl font-bold text-gray-900">{selectedSignatureExperience.name}</h2>
+              <button
+                onClick={() => setShowSignatureModal(false)}
+                className="text-gray-400 hover:text-gray-600 text-2xl font-bold"
+              >
+                ×
+              </button>
+            </div>
+            
+            <div className="space-y-6">
+              <div className="bg-gradient-to-r from-amber-50 to-red-50 p-6 rounded-xl border border-amber-200">
+                <h3 className="font-bold text-lg text-amber-900 mb-3">Experience Details</h3>
+                <p className="text-gray-700 text-lg mb-4">{selectedSignatureExperience.description}</p>
+                
+                <div className="grid md:grid-cols-2 gap-4 mb-4">
+                  <div className="space-y-2">
+                    <div className="flex items-center text-sm text-gray-600">
+                      <span className="font-medium mr-2">📍 Location:</span>
+                      <span>{selectedSignatureExperience.location}</span>
+                    </div>
+                    <div className="flex items-center text-sm text-gray-600">
+                      <span className="font-medium mr-2">📏 Distance:</span>
+                      <span>{selectedSignatureExperience.distance}</span>
+                    </div>
+                    <div className="flex items-center text-sm text-gray-600">
+                      <span className="font-medium mr-2">⏱️ Duration:</span>
+                      <span>{selectedSignatureExperience.duration}</span>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex items-center text-sm text-gray-600">
+                      <span className="font-medium mr-2">💰 Price:</span>
+                      <span>{selectedSignatureExperience.priceRange}</span>
+                    </div>
+                    <div className="flex items-center text-sm text-gray-600">
+                      <span className="font-medium mr-2">👥 Max Guests:</span>
+                      <span>{selectedSignatureExperience.maxGuests} people</span>
+                    </div>
+                    <div className="flex items-center text-sm text-gray-600">
+                      <span className="font-medium mr-2">🌅 Best Time:</span>
+                      <span className="capitalize">{selectedSignatureExperience.bestTime}</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="bg-amber-100 p-4 rounded-lg border-l-4 border-amber-500">
+                  <h4 className="font-bold text-amber-900 mb-2">💎 Local Insider Knowledge</h4>
+                  <p className="text-amber-800 text-sm">{selectedSignatureExperience.localInsight}</p>
+                </div>
+              </div>
+              
+              <div className="bg-red-50 p-6 rounded-xl border border-red-200">
+                <h3 className="font-bold text-lg text-red-900 mb-3">🎯 Booking Information</h3>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-red-800">Advance Booking Required:</span>
+                    <span className="bg-red-200 text-red-800 px-3 py-1 rounded-full text-sm font-medium">
+                      {selectedSignatureExperience.bookingRequired ? 'Yes - 48-72 hours' : 'Walk-ins Welcome'}
+                    </span>
+                  </div>
+                  <div className="bg-white p-4 rounded-lg border border-red-100">
+                    <p className="text-gray-700 text-sm mb-3">
+                      <strong>To book this exclusive experience:</strong>
+                    </p>
+                    <div className="space-y-2 text-sm text-gray-600">
+                      <p>📞 Call Rio Nido Lodge Concierge: <span className="font-medium">(707) 869-0821</span></p>
+                      <p>✉️ Email: <span className="font-medium">concierge@rionidolodge.com</span></p>
+                      <p>🕐 Best to call between 9AM-5PM for immediate assistance</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex justify-between mt-8">
+              <button
+                onClick={() => setShowSignatureModal(false)}
+                className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-all"
+              >
+                Close
+              </button>
+              <button
+                onClick={() => {
+                  if (window.gtag) {
+                    window.gtag('event', 'signature_experience_interest', {
+                      'custom_map': {'experience': selectedSignatureExperience.name},
+                      'value': 1
+                    });
+                  }
+                  window.open(`tel:(707) 869-0821`, '_self');
+                }}
+                className="px-8 py-3 bg-gradient-to-r from-red-700 to-red-800 text-white rounded-lg hover:from-red-800 hover:to-red-900 transition-all shadow-lg font-medium"
+              >
+                📞 Call to Book
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   // Check for shared itinerary on load
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -500,7 +773,7 @@ const RioNidoLodgeApp = () => {
   // Main form component
   const GuestForm = () => (
     <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow-xl p-8">
-      <form onSubmit={handleSubmit} className="space-y-8">
+      <div className="space-y-8">
         {/* Guest Information */}
         <div className="space-y-6">
           <h2 className="text-2xl font-bold text-gray-900 text-center">Plan Your Russian River Valley Experience</h2>
@@ -514,7 +787,6 @@ const RioNidoLodgeApp = () => {
                 onChange={(e) => setGuestData({...guestData, name: e.target.value})}
                 className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-red-500 focus:border-transparent"
                 placeholder="Your name"
-                required
               />
             </div>
             <div>
@@ -629,12 +901,18 @@ const RioNidoLodgeApp = () => {
         </div>
 
         <button
-          type="submit"
+          onClick={() => {
+            if (guestData.interests.length === 0) {
+              alert('Please select at least one interest');
+              return;
+            }
+            generateItinerary();
+          }}
           className="w-full bg-gradient-to-r from-red-700 to-red-800 text-white py-4 px-6 rounded-xl font-semibold text-lg hover:from-red-800 hover:to-red-900 transition-all shadow-lg"
         >
           Create My Curated Itinerary
         </button>
-      </form>
+      </div>
     </div>
   );
 
@@ -685,7 +963,14 @@ const RioNidoLodgeApp = () => {
           </h2>
           <div className="grid md:grid-cols-3 gap-6">
             {signatureExperiences.map(experience => (
-              <div key={experience.id} className="bg-white rounded-xl p-5 shadow-sm border border-amber-100">
+              <button
+                key={experience.id}
+                onClick={() => {
+                  setSelectedSignatureExperience(experience);
+                  setShowSignatureModal(true);
+                }}
+                className="bg-white rounded-xl p-5 shadow-sm border border-amber-100 hover:shadow-lg hover:border-amber-300 transition-all cursor-pointer text-left"
+              >
                 <h3 className="font-bold text-lg text-gray-900 mb-2">{experience.name}</h3>
                 <p className="text-gray-600 text-sm mb-3">{experience.description}</p>
                 <div className="space-y-1 text-xs text-gray-500">
@@ -693,10 +978,15 @@ const RioNidoLodgeApp = () => {
                   <div>💰 {experience.priceRange} • Max {experience.maxGuests} guests</div>
                   <div className="text-amber-700 font-medium">💎 {experience.localInsight}</div>
                 </div>
-                <div className="mt-3 bg-red-100 text-red-800 text-xs px-3 py-1 rounded-full inline-block">
-                  Booking Required
+                <div className="flex items-center justify-between mt-4">
+                  <div className="bg-red-100 text-red-800 text-xs px-3 py-1 rounded-full">
+                    Booking Required
+                  </div>
+                  <div className="text-red-600 text-sm font-medium hover:text-red-700">
+                    Click for Details →
+                  </div>
                 </div>
-              </div>
+              </button>
             ))}
           </div>
         </div>
@@ -854,6 +1144,9 @@ const RioNidoLodgeApp = () => {
         {(currentStep === 'itinerary' || currentStep === 'shared') && itinerary && <ItineraryDisplay />}
         {loading && <LoadingScreen />}
       </div>
+      
+      {/* Signature Experience Modal */}
+      <SignatureExperienceModal />
     </div>
   );
 };
