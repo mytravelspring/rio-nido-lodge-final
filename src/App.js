@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { MapPin, Clock, Star, Users, Car, DollarSign, Navigation, Phone, Calendar, Coffee, Utensils, Camera, TreePine, Waves, Mountain, Wine, Home, Sparkles, Heart, Route } from 'lucide-react';
 
 const RioNidoLodgeApp = () => {
   const [guestData, setGuestData] = useState({
@@ -26,12 +25,12 @@ const RioNidoLodgeApp = () => {
   };
 
   const interests = [
-    { id: 'wine', label: 'Wine & Tastings', icon: Wine },
-    { id: 'nature', label: 'Nature & Hiking', icon: TreePine },
-    { id: 'food', label: 'Food & Dining', icon: Utensils },
-    { id: 'coast', label: 'Coastal Adventures', icon: Waves },
-    { id: 'adventure', label: 'Outdoor Adventure', icon: Mountain },
-    { id: 'relaxation', label: 'Relaxation & Spa', icon: Heart }
+    { id: 'wine', label: 'Wine & Tastings', icon: '🍷' },
+    { id: 'nature', label: 'Nature & Hiking', icon: '🌲' },
+    { id: 'food', label: 'Food & Dining', icon: '🍽️' },
+    { id: 'coast', label: 'Coastal Adventures', icon: '🌊' },
+    { id: 'adventure', label: 'Outdoor Adventure', icon: '⛰️' },
+    { id: 'relaxation', label: 'Relaxation & Spa', icon: '💆' }
   ];
 
   const budgetOptions = [
@@ -252,48 +251,6 @@ const RioNidoLodgeApp = () => {
       ]
     },
 
-    // LOCAL SHOPPING & CULTURE
-    {
-      category: 'shopping',
-      type: 'shop',
-      name: 'River Trading Post',
-      description: 'Local artisan goods, river gear, and Sonoma County gifts',
-      address: '16209 First St, Guerneville, CA',
-      distance: '1.1 miles',
-      driveTime: '3 minutes',
-      budget: 'budget',
-      price: '$5-50 items',
-      rating: 4.2,
-      hours: '10am-6pm daily',
-      phone: '(707) 869-9020',
-      specialties: ['Local crafts', 'River gear', 'Unique gifts'],
-      isSignature: false,
-      alternateDestinations: [
-        { name: 'Guerneville art galleries', type: 'stop', driveTime: '2 min' },
-        { name: 'Rainbow Cattle Co.', type: 'stop', driveTime: '1 min' }
-      ]
-    },
-    {
-      category: 'art',
-      type: 'gallery',
-      name: 'Gallery Lulo',
-      description: 'Contemporary art gallery featuring local and regional artists',
-      address: '16215 Main St, Guerneville, CA',
-      distance: '1.2 miles',
-      driveTime: '4 minutes',
-      budget: 'budget',
-      price: 'Free browsing',
-      rating: 4.4,
-      hours: '11am-5pm Fri-Sun',
-      phone: '(707) 869-4109',
-      specialties: ['Local artists', 'Contemporary art', 'Rotating exhibitions'],
-      isSignature: false,
-      alternateDestinations: [
-        { name: 'Guerneville town square', type: 'stop', driveTime: '1 min' },
-        { name: 'Russian River Art Gallery', type: 'stop', driveTime: '2 min' }
-      ]
-    },
-
     // RELAXATION & SPA
     {
       category: 'relaxation',
@@ -442,6 +399,129 @@ const RioNidoLodgeApp = () => {
       alternateDestinations: [
         { name: 'Monte Rio village', type: 'stop', driveTime: '2 min' },
         { name: 'Russian River beach access', type: 'stop', driveTime: '1 min' }
+      ]
+    },
+    {
+      category: 'relaxation',
+      type: 'spa',
+      name: 'June Bug Skin & Body',
+      description: 'Premier beauty boutique offering massage, facials, and full-body treatments',
+      address: '16216 Main St, Guerneville, CA',
+      distance: '1.1 miles',
+      driveTime: '3 minutes',
+      budget: 'moderate',
+      price: '$75-150 treatments',
+      rating: 4.5,
+      hours: '10am-6pm Wed-Sun',
+      phone: '(707) 869-4600',
+      specialties: ['Lash extensions', 'Chemical peels', 'Spray tanning', 'Wedding services'],
+      isSignature: false,
+      alternateDestinations: [
+        { name: 'Guerneville town square', type: 'stop', driveTime: '1 min' },
+        { name: 'Russian River Art Gallery', type: 'stop', driveTime: '2 min' }
+      ]
+    },
+    {
+      category: 'relaxation',
+      type: 'retreat',
+      name: 'Ratna Ling Retreat Center',
+      description: 'Luxury meditation and yoga retreats in 120 acres of redwood forest',
+      address: '3351 Cazadero Hwy, Cazadero, CA',
+      distance: '20 miles',
+      driveTime: '35 minutes',
+      budget: 'splurge',
+      price: '$300-500 per day',
+      rating: 4.9,
+      hours: 'Retreat schedules vary',
+      phone: '(707) 632-5478',
+      specialties: ['Buddhist meditation', 'Yoga retreats', 'Sound baths', 'Forest cottages'],
+      isSignature: true,
+      bookingRequired: 'Advanced booking essential for retreats',
+      alternateDestinations: [
+        { name: 'Cazadero village', type: 'stop', driveTime: '5 min' },
+        { name: 'Austin Creek State Recreation Area', type: 'detour', driveTime: '15 min' }
+      ]
+    },
+    {
+      category: 'nature',
+      type: 'wellness',
+      name: 'Forest Bathing at Armstrong Woods',
+      description: 'Guided Japanese forest bathing (shinrin-yoku) among ancient redwoods',
+      address: '17000 Armstrong Woods Rd, Guerneville, CA',
+      distance: '2.8 miles',
+      driveTime: '8 minutes',
+      budget: 'moderate',
+      price: '$45-65 per person',
+      rating: 4.7,
+      hours: 'Morning sessions by appointment',
+      phone: '(707) 869-2847',
+      specialties: ['Mindfulness in nature', 'Stress reduction', 'Guided meditation walks'],
+      isSignature: false,
+      alternateDestinations: [
+        { name: 'Armstrong Redwoods visitor center', type: 'stop', driveTime: '0 min' },
+        { name: 'Guerneville River Access', type: 'stop', driveTime: '8 min' }
+      ]
+    },
+    {
+      category: 'relaxation',
+      type: 'wellness',
+      name: 'Sound Bath Sessions',
+      description: 'Therapeutic sound healing with crystal bowls and gongs in nature settings',
+      address: 'Various outdoor locations near Guerneville',
+      distance: '2-8 miles',
+      driveTime: '5-15 minutes',
+      budget: 'moderate',
+      price: '$35-55 per session',
+      rating: 4.6,
+      hours: 'Evening sessions by appointment',
+      phone: '(707) 604-9988',
+      specialties: ['Crystal bowl healing', 'Group sessions', 'Private ceremonies'],
+      isSignature: false,
+      alternateDestinations: [
+        { name: 'Russian River beaches', type: 'stop', driveTime: '3 min' },
+        { name: 'Redwood grove locations', type: 'stop', driveTime: '5 min' }
+      ]
+    },
+    {
+      category: 'nature',
+      type: 'wellness',
+      name: 'Yoga Hiking at Sugarloaf Ridge',
+      description: 'Guided hike combining easy trails with outdoor yoga and meditation',
+      address: '2605 Adobe Canyon Rd, Kenwood, CA',
+      distance: '25 miles',
+      driveTime: '40 minutes',
+      budget: 'moderate',
+      price: '$55-75 per person',
+      rating: 4.8,
+      hours: 'Morning sessions, weather permitting',
+      phone: '(707) 833-5712',
+      specialties: ['Hiking + yoga', 'Nature meditation', 'Panoramic views'],
+      isSignature: true,
+      bookingRequired: 'Advance booking recommended, weather dependent',
+      alternateDestinations: [
+        { name: 'Kenwood village', type: 'stop', driveTime: '8 min' },
+        { name: 'Sugarloaf State Park trails', type: 'extension', driveTime: '0 min' }
+      ]
+    },
+    {
+      category: 'relaxation',
+      type: 'spa',
+      name: 'Dawn Ranch Wellness Retreat',
+      description: 'Comprehensive wellness retreat with forest bathing, yoga, and mindfulness',
+      address: '16467 River Rd, Guerneville, CA',
+      distance: '1.8 miles',
+      driveTime: '5 minutes',
+      budget: 'splurge',
+      price: '$200-400 per day',
+      rating: 4.7,
+      hours: 'Day retreats and packages available',
+      phone: '(707) 869-0656',
+      specialties: ['Forest bathing', 'Meditation workshops', 'Holistic treatments', 'Healthy cuisine'],
+      isSignature: true,
+      bookingRequired: 'Advanced reservations required',
+      alternateDestinations: [
+        { name: 'Russian River access', type: 'stop', driveTime: '2 min' },
+        { name: 'Guerneville downtown', type: 'stop', driveTime: '3 min' }
       ]
     },
     {
@@ -604,17 +684,25 @@ const RioNidoLodgeApp = () => {
   const currentDayData = generatedItinerary.find(d => d.day === currentDay);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-50 to-rose-50">
+    <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-rose-50">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b-2 border-red-200">
-        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-red-800 rounded-lg flex items-center justify-center">
-              <TreePine className="w-6 h-6 text-white" />
+      <header className="bg-white shadow-sm border-b border-red-100">
+        <div className="max-w-6xl mx-auto px-4 py-6 flex items-center">
+          <div className="flex items-center space-x-4">
+            {/* Logo placeholder - replace with actual logo */}
+            <div className="w-16 h-16 bg-gradient-to-br from-amber-100 to-amber-200 rounded-xl flex items-center justify-center shadow-lg border-2 border-red-900 relative overflow-hidden">
+              {/* Ornate vintage style inspired by their logo */}
+              <div className="absolute inset-0 bg-gradient-to-br from-red-900 to-red-800 opacity-90"></div>
+              <div className="relative z-10 text-amber-100 font-bold text-lg tracking-wider">RN</div>
+              {/* Decorative corners */}
+              <div className="absolute top-1 left-1 w-2 h-2 border-l-2 border-t-2 border-amber-200 opacity-60"></div>
+              <div className="absolute top-1 right-1 w-2 h-2 border-r-2 border-t-2 border-amber-200 opacity-60"></div>
+              <div className="absolute bottom-1 left-1 w-2 h-2 border-l-2 border-b-2 border-amber-200 opacity-60"></div>
+              <div className="absolute bottom-1 right-1 w-2 h-2 border-r-2 border-b-2 border-amber-200 opacity-60"></div>
             </div>
             <div>
-              <h1 className="text-xl font-bold text-gray-900">Rio Nido Lodge</h1>
-              <p className="text-sm text-red-700">Curated Local Experiences</p>
+              <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Rio Nido Lodge</h1>
+              <p className="text-sm text-red-700 font-medium">Mercantile & Cafe • Historic Retreat</p>
             </div>
           </div>
         </div>
@@ -625,9 +713,8 @@ const RioNidoLodgeApp = () => {
           
           {/* Left Column - Guest Information */}
           <div className="space-y-6">
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
-                <Users className="w-6 h-6 mr-2 text-red-700" />
+            <div className="bg-white rounded-xl shadow-lg p-8 border border-gray-100">
+              <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">
                 Plan Your Perfect Stay
               </h2>
 
@@ -732,7 +819,6 @@ const RioNidoLodgeApp = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-3">What interests you?</label>
                   <div className="grid grid-cols-2 gap-3">
                     {interests.map((interest) => {
-                      const Icon = interest.icon;
                       const isSelected = guestData.interests.includes(interest.id);
                       return (
                         <button
@@ -744,7 +830,9 @@ const RioNidoLodgeApp = () => {
                               : 'border-gray-200 hover:border-gray-300 text-gray-700'
                           }`}
                         >
-                          <Icon className={`w-5 h-5 mb-2 ${isSelected ? 'text-red-700' : 'text-gray-500'}`} />
+                          <div className={`text-lg mb-2 ${isSelected ? 'text-red-700' : 'text-gray-500'}`}>
+                            {interest.icon}
+                          </div>
                           <p className="text-sm font-medium">{interest.label}</p>
                         </button>
                       );
@@ -754,7 +842,7 @@ const RioNidoLodgeApp = () => {
 
                 <button
                   onClick={generateItinerary}
-                  className="w-full bg-red-700 text-white py-3 px-6 rounded-lg hover:bg-red-800 transition-colors font-medium"
+                  className="w-full bg-gradient-to-r from-red-700 to-red-800 text-white py-4 px-8 rounded-xl hover:from-red-800 hover:to-red-900 transition-all duration-300 font-semibold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
                 >
                   Generate My Itinerary
                 </button>
@@ -762,29 +850,30 @@ const RioNidoLodgeApp = () => {
             </div>
 
             {/* Signature Experiences */}
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h3 className="text-xl font-semibold mb-6 flex items-center">
-                <Sparkles className="w-6 h-6 mr-3 text-purple-600" />
-                Signature Experiences
-              </h3>
-              <p className="text-gray-600 mb-4 text-sm">
-                Premium experiences worth the splurge - 
-                {guestData.interests.length > 0 
-                  ? ' personalized based on your interests' 
-                  : ' select your interests above to see personalized recommendations'
-                }
-              </p>
-              <div className="space-y-4">
+            <div className="bg-white rounded-xl shadow-lg p-8 border border-gray-100">
+              <div className="text-center mb-8">
+                <div className="w-16 h-16 bg-gradient-to-br from-purple-100 to-purple-200 rounded-full mx-auto mb-4 flex items-center justify-center">
+                  <span className="text-purple-600 text-2xl">✨</span>
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-3">Signature Experiences</h3>
+                <p className="text-gray-600 text-sm leading-relaxed max-w-sm mx-auto">
+                  {guestData.interests.length > 0 
+                    ? 'Premium experiences curated for your interests' 
+                    : 'Select your interests above to see personalized recommendations'
+                  }
+                </p>
+              </div>
+              <div className="space-y-6">
                 {getInterestBasedSignatureExperiences().map((experience, index) => {
                   const isMatchingInterest = guestData.interests.includes(experience.category);
                   return (
                   <div
                     key={index}
                     onClick={() => openExperienceModal(experience)}
-                    className={`p-4 border rounded-lg cursor-pointer transition-all ${
+                    className={`p-6 rounded-xl cursor-pointer transition-all duration-300 ${
                       isMatchingInterest 
-                        ? 'border-red-300 bg-red-50 hover:border-red-400 hover:bg-red-100' 
-                        : 'border-gray-200 hover:border-purple-300 hover:bg-purple-50'
+                        ? 'bg-gradient-to-r from-red-50 to-red-100 border-2 border-red-200 shadow-md hover:shadow-lg' 
+                        : 'bg-gray-50 border border-gray-200 hover:bg-purple-50 hover:border-purple-200 hover:shadow-md'
                     }`}
                   >
                     <div className="flex items-start justify-between">
@@ -803,25 +892,25 @@ const RioNidoLodgeApp = () => {
                             {getBudgetIcon(experience.budget)} {experience.budget}
                           </span>
                           <span className="text-xs text-gray-500 flex items-center">
-                            <Car className="w-3 h-3 mr-1" />
+                            <span className="mr-1">🚗</span>
                             {experience.driveTime}
                           </span>
                           <span className="text-xs text-gray-500 flex items-center">
-                            <Star className="w-3 h-3 mr-1" />
+                            <span className="mr-1">⭐</span>
                             {experience.rating}
                           </span>
                         </div>
                       </div>
-                      <Sparkles className="w-6 h-6 text-purple-400 ml-3" />
+                      <span className="text-purple-400 ml-3 text-lg">✨</span>
                     </div>
                   </div>
                 )})}
               </div>
-              <div className="mt-4 text-center">
-                <p className="text-xs text-gray-500">
+              <div className="mt-8 text-center">
+                <p className="text-xs text-gray-500 italic">
                   {guestData.interests.length > 0 
-                    ? 'Experiences highlighted in red match your selected interests' 
-                    : 'Select interests above to see personalized signature experiences'
+                    ? 'Highlighted experiences match your selected interests' 
+                    : 'Select interests above to see personalized recommendations'
                   }
                 </p>
               </div>
@@ -832,7 +921,7 @@ const RioNidoLodgeApp = () => {
           <div className="space-y-6">
             {generatedItinerary.length > 0 && (
               <>
-                <div className="bg-white rounded-lg shadow-md p-6">
+                <div className="bg-white rounded-xl shadow-lg p-8 border border-gray-100">
                   <div className="text-center mb-6">
                     <h2 className="text-2xl font-bold text-gray-900">
                       {guestData.name ? `${guestData.name}'s` : 'Your'} Hyperlocal Experience
@@ -846,7 +935,7 @@ const RioNidoLodgeApp = () => {
                       </span>
                       {guestData.allowAlternateDestinations && (
                         <span className="text-sm px-3 py-1 rounded-full bg-orange-50 text-orange-600">
-                          <Route className="w-3 h-3 inline mr-1" />
+                          <span className="mr-1">🗺️</span>
                           Alternate routes included
                         </span>
                       )}
@@ -887,14 +976,14 @@ const RioNidoLodgeApp = () => {
                             <div className="flex items-start justify-between">
                               <div className="flex-1">
                                 <div className="flex items-center space-x-2 mb-2">
-                                  <Clock className="w-4 h-4 text-gray-400" />
+                                  <span className="text-gray-400">🕐</span>
                                   <span className="text-sm font-medium text-gray-600">{item.time}</span>
                                   <span className={`text-xs px-2 py-1 rounded-full ${getBudgetColor(item.activity.budget)}`}>
                                     {getBudgetIcon(item.activity.budget)} {item.activity.budget}
                                   </span>
                                   {item.activity.isSignature && (
                                     <span className="text-xs px-2 py-1 rounded-full bg-purple-50 text-purple-600">
-                                      <Sparkles className="w-3 h-3 inline mr-1" />
+                                      <span className="mr-1">✨</span>
                                       Signature
                                     </span>
                                   )}
@@ -905,19 +994,19 @@ const RioNidoLodgeApp = () => {
                                 
                                 <div className="flex items-center space-x-4 text-sm text-gray-500">
                                   <div className="flex items-center space-x-1">
-                                    <MapPin className="w-4 h-4" />
+                                    <span>📍</span>
                                     <span>{item.activity.distance}</span>
                                   </div>
                                   <div className="flex items-center space-x-1">
-                                    <Car className="w-4 h-4" />
+                                    <span>🚗</span>
                                     <span>{item.activity.driveTime}</span>
                                   </div>
                                   <div className="flex items-center space-x-1">
-                                    <Star className="w-4 h-4" />
+                                    <span>⭐</span>
                                     <span>{item.activity.rating}</span>
                                   </div>
                                   <div className="flex items-center space-x-1">
-                                    <DollarSign className="w-4 h-4" />
+                                    <span>💰</span>
                                     <span>{item.activity.price}</span>
                                   </div>
                                 </div>
@@ -929,7 +1018,7 @@ const RioNidoLodgeApp = () => {
                                     <div className="space-y-1">
                                       {item.activity.alternateDestinations.map((alt, altIndex) => (
                                         <div key={altIndex} className="flex items-center space-x-2 text-xs text-orange-600">
-                                          <Navigation className="w-3 h-3" />
+                                          <span>🧭</span>
                                           <span>{alt.name}</span>
                                           <span className="text-orange-500">({alt.type}, +{alt.driveTime})</span>
                                         </div>
@@ -944,7 +1033,7 @@ const RioNidoLodgeApp = () => {
                                   onClick={() => openExperienceModal(item.activity)}
                                   className="ml-4 text-purple-600 hover:text-purple-800"
                                 >
-                                  <Sparkles className="w-5 h-5" />
+                                  <span className="text-lg">✨</span>
                                 </button>
                               )}
                             </div>
@@ -959,9 +1048,13 @@ const RioNidoLodgeApp = () => {
 
             {generatedItinerary.length === 0 && (
               <div className="bg-white rounded-lg shadow-md p-8 text-center">
-                <TreePine className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">Ready to explore?</h3>
-                <p className="text-gray-600">Fill out your preferences and we'll create a personalized itinerary just for you!</p>
+                <div className="w-24 h-24 bg-gradient-to-br from-red-100 to-red-200 rounded-full mx-auto mb-6 flex items-center justify-center">
+                  <div className="w-12 h-12 bg-gradient-to-br from-red-600 to-red-800 rounded-full opacity-20"></div>
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-3">Ready to explore?</h3>
+                <p className="text-gray-600 leading-relaxed max-w-md mx-auto">
+                  Fill out your preferences above and we'll create a personalized itinerary featuring the best local experiences just for you.
+                </p>
               </div>
             )}
           </div>
@@ -988,19 +1081,19 @@ const RioNidoLodgeApp = () => {
                 
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div className="flex items-center space-x-2">
-                    <MapPin className="w-4 h-4 text-gray-400" />
+                    <span>📍</span>
                     <span>{selectedExperience.distance} away</span>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <Clock className="w-4 h-4 text-gray-400" />
+                    <span>🕐</span>
                     <span>{selectedExperience.driveTime} drive</span>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <Star className="w-4 h-4 text-gray-400" />
+                    <span>⭐</span>
                     <span>{selectedExperience.rating} rating</span>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <DollarSign className="w-4 h-4 text-gray-400" />
+                    <span>💰</span>
                     <span>{selectedExperience.price}</span>
                   </div>
                 </div>
@@ -1021,7 +1114,7 @@ const RioNidoLodgeApp = () => {
                 {selectedExperience.bookingRequired && (
                   <div className="p-3 bg-yellow-50 rounded-lg">
                     <div className="flex items-center space-x-2">
-                      <Calendar className="w-4 h-4 text-yellow-600" />
+                      <span>📅</span>
                       <span className="text-sm font-medium text-yellow-800">Booking Required</span>
                     </div>
                     <p className="text-sm text-yellow-700 mt-1">{selectedExperience.bookingRequired}</p>
@@ -1033,7 +1126,7 @@ const RioNidoLodgeApp = () => {
                     href={`tel:${selectedExperience.phone}`}
                     className="flex-1 bg-red-700 text-white py-2 px-4 rounded-lg text-center hover:bg-red-800 transition-colors"
                   >
-                    <Phone className="w-4 h-4 inline mr-2" />
+                    <span className="mr-2">📞</span>
                     Call to Book
                   </a>
                   <button
