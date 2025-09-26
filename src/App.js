@@ -22,7 +22,7 @@ const RioNidoLodgeApp = () => {
   // Get current time for business hours
   const getCurrentHour = () => new Date().getHours();
 
-  // Business database with hours and clustering
+  // COMPLETE Business database with ALL requested businesses
   const businessDatabase = {
     food: [
       { 
@@ -39,6 +39,18 @@ const RioNidoLodgeApp = () => {
         signature: true
       },
       { 
+        name: "The Hot Box", 
+        type: "Gourmet Hot Dogs & Sandwiches", 
+        description: "Creative hot dogs and artisanal sandwiches with local ingredients", 
+        rating: 4.6, 
+        priceRange: "$$",
+        localInsight: "The 'Russian River Dog' topped with local sauerkraut is a hidden menu item",
+        driveTime: "3 min walk",
+        category: "food",
+        cluster: "downtown",
+        hours: { open: 11, close: 19, timeAppropriate: ['afternoon', 'evening'] }
+      },
+      { 
         name: "Seaside Metal", 
         type: "Oyster Bar & Grill", 
         description: "Fresh coastal cuisine with panoramic ocean views", 
@@ -51,6 +63,19 @@ const RioNidoLodgeApp = () => {
         hours: { open: 8, close: 21, timeAppropriate: ['morning', 'afternoon', 'evening'] }
       },
       { 
+        name: "Terrapin Creek Cafe", 
+        type: "Coastal Fine Dining", 
+        description: "Award-winning restaurant featuring fresh Sonoma Coast cuisine", 
+        rating: 4.8, 
+        priceRange: "$$$$",
+        localInsight: "Chef Kenny Kan sources directly from local fishermen - menu changes with daily catch",
+        driveTime: "28 min drive",
+        category: "food",
+        cluster: "coastal",
+        hours: { open: 17, close: 21, timeAppropriate: ['evening'] },
+        signature: true
+      },
+      { 
         name: "River's End Restaurant", 
         type: "Oceanfront Fine Dining", 
         description: "Upscale restaurant perched on cliffs above the Pacific", 
@@ -61,6 +86,18 @@ const RioNidoLodgeApp = () => {
         category: "food",
         cluster: "coastal",
         hours: { open: 17, close: 21, timeAppropriate: ['evening'] }
+      },
+      { 
+        name: "Spud Point Crab Company", 
+        type: "Waterfront Seafood Shack", 
+        description: "Family-owned crab shack with bay views and fresh Dungeness crab", 
+        rating: 4.5, 
+        priceRange: "$$",
+        localInsight: "Come at sunset for the best crab sandwich and harbor views - cash only!",
+        driveTime: "26 min drive",
+        category: "food",
+        cluster: "coastal",
+        hours: { open: 9, close: 18, timeAppropriate: ['morning', 'afternoon'] }
       },
       { 
         name: "Guerneville Taco Truck", 
@@ -85,43 +122,6 @@ const RioNidoLodgeApp = () => {
         category: "food",
         cluster: "downtown",
         hours: { open: 7, close: 14, timeAppropriate: ['morning', 'afternoon'] }
-      },
-      { 
-        name: "The Hot Box", 
-        type: "Gourmet Hot Dogs & Sandwiches", 
-        description: "Creative hot dogs and artisanal sandwiches with local ingredients", 
-        rating: 4.6, 
-        priceRange: "$",
-        localInsight: "The 'Russian River Dog' topped with local sauerkraut is a hidden menu item",
-        driveTime: "3 min walk",
-        category: "food",
-        cluster: "downtown",
-        hours: { open: 11, close: 19, timeAppropriate: ['afternoon', 'evening'] }
-      },
-      { 
-        name: "Terrapin Creek Cafe", 
-        type: "Coastal Fine Dining", 
-        description: "Award-winning restaurant featuring fresh Sonoma Coast cuisine", 
-        rating: 4.8, 
-        priceRange: "$$",
-        localInsight: "Chef Kenny Kan sources directly from local fishermen - menu changes with daily catch",
-        driveTime: "28 min drive",
-        category: "food",
-        cluster: "coastal",
-        hours: { open: 17, close: 21, timeAppropriate: ['evening'] },
-        signature: true
-      },
-      { 
-        name: "Spud Point Crab Company", 
-        type: "Waterfront Seafood Shack", 
-        description: "Family-owned crab shack with bay views and fresh Dungeness crab", 
-        rating: 4.5, 
-        priceRange: "$",
-        localInsight: "Come at sunset for the best crab sandwich and harbor views - cash only!",
-        driveTime: "26 min drive",
-        category: "food",
-        cluster: "coastal",
-        hours: { open: 9, close: 18, timeAppropriate: ['morning', 'afternoon'] }
       }
     ],
     coffee: [
@@ -130,7 +130,7 @@ const RioNidoLodgeApp = () => {
         type: "Local Coffee Roastery", 
         description: "Small-batch roastery with beans sourced from sustainable farms", 
         rating: 4.6, 
-        priceRange: "$",
+        priceRange: "$$",
         localInsight: "The owner personally travels to origin farms - try the Guatemala Huehuetenango",
         driveTime: "3 min walk",
         category: "coffee",
@@ -138,28 +138,28 @@ const RioNidoLodgeApp = () => {
         hours: { open: 6, close: 18, timeAppropriate: ['morning', 'afternoon'] }
       },
       { 
-        name: "Big Bottom Market", 
-        type: "Gourmet Market & Café", 
-        description: "Artisanal market with exceptional coffee and baked goods", 
-        rating: 4.4, 
-        priceRange: "$",
-        localInsight: "Their biscuits are so famous, Food Network featured them twice",
-        driveTime: "5 min walk",
-        category: "coffee",
-        cluster: "downtown",
-        hours: { open: 8, close: 16, timeAppropriate: ['morning', 'afternoon'] }
-      },
-      { 
         name: "River Electric", 
         type: "Coffee Shop & Community Hub", 
         description: "Local gathering spot with specialty coffee and community vibe", 
         rating: 4.7, 
-        priceRange: "$",
+        priceRange: "$$",
         localInsight: "The 'Russian River Roast' is their signature blend - locals gather here for morning gossip",
         driveTime: "4 min walk",
         category: "coffee",
         cluster: "downtown",
         hours: { open: 7, close: 17, timeAppropriate: ['morning', 'afternoon'] }
+      },
+      { 
+        name: "Big Bottom Market", 
+        type: "Gourmet Market & Café", 
+        description: "Artisanal market with exceptional coffee and baked goods", 
+        rating: 4.4, 
+        priceRange: "$$",
+        localInsight: "Their biscuits are so famous, Food Network featured them twice",
+        driveTime: "5 min walk",
+        category: "coffee",
+        cluster: "downtown",
+        hours: { open: 8, close: 16, timeAppropriate: ['morning', 'afternoon'] }
       }
     ],
     wine: [
@@ -279,18 +279,6 @@ const RioNidoLodgeApp = () => {
         hours: { open: 6, close: 20, timeAppropriate: ['morning', 'afternoon', 'evening'] }
       },
       { 
-        name: "Duncan Mills", 
-        type: "Historic River Town", 
-        description: "Charming historic town with antique shops and riverside access", 
-        rating: 4.4, 
-        priceRange: "Free",
-        localInsight: "Visit the old train depot - now a museum with Russian River history",
-        driveTime: "18 min drive",
-        category: "nature",
-        cluster: "coastal",
-        hours: { open: 9, close: 17, timeAppropriate: ['morning', 'afternoon'] }
-      },
-      { 
         name: "Salmon Creek Beach", 
         type: "Expansive Coastal Beach", 
         description: "Two-mile stretch of sandy beach perfect for walking and beachcombing", 
@@ -325,6 +313,18 @@ const RioNidoLodgeApp = () => {
         category: "nature",
         cluster: "coastal",
         hours: { open: 8, close: 19, timeAppropriate: ['morning', 'afternoon'] }
+      },
+      { 
+        name: "Duncan Mills", 
+        type: "Historic River Town", 
+        description: "Charming historic town with antique shops and riverside access", 
+        rating: 4.4, 
+        priceRange: "Free",
+        localInsight: "Visit the old train depot - now a museum with Russian River history",
+        driveTime: "18 min drive",
+        category: "nature",
+        cluster: "coastal",
+        hours: { open: 9, close: 17, timeAppropriate: ['morning', 'afternoon'] }
       }
     ],
     shopping: [
@@ -333,12 +333,72 @@ const RioNidoLodgeApp = () => {
         type: "Vintage Treasures", 
         description: "Curated antiques and vintage finds in historic building", 
         rating: 4.3, 
-        priceRange: "$",
+        priceRange: "$$",
         localInsight: "The owner finds pieces from old Russian River estates - unique local history",
         driveTime: "3 min walk",
         category: "shopping",
         cluster: "downtown",
         hours: { open: 10, close: 17, timeAppropriate: ['morning', 'afternoon'] }
+      },
+      { 
+        name: "Andy's Local Market", 
+        type: "Family-Owned Grocery", 
+        description: "Family-owned Sebastopol grocery store since 1979 with local products", 
+        rating: 4.4, 
+        priceRange: "$$",
+        localInsight: "Best selection of local wines and the staff knows every producer personally",
+        driveTime: "15 min drive",
+        category: "shopping",
+        cluster: "russian_river",
+        hours: { open: 7, close: 21, timeAppropriate: ['morning', 'afternoon', 'evening'] }
+      },
+      { 
+        name: "Oliver's Market", 
+        type: "Local Sonoma Chain", 
+        description: "Local Sonoma County market chain with gourmet and organic selections", 
+        rating: 4.2, 
+        priceRange: "$$",
+        localInsight: "Their deli makes the best sandwiches for river picnics - try the 'Sonoma Turkey'",
+        driveTime: "12 min drive",
+        category: "shopping",
+        cluster: "russian_river",
+        hours: { open: 6, close: 22, timeAppropriate: ['morning', 'afternoon', 'evening'] }
+      },
+      { 
+        name: "Candy & Kites", 
+        type: "Bodega Bay Taffy Shop", 
+        description: "Classic seaside candy shop with homemade saltwater taffy and kites", 
+        rating: 4.7, 
+        priceRange: "$$",
+        localInsight: "Watch them pull the taffy through the window - the lavender flavor uses local Sonoma lavender",
+        driveTime: "26 min drive",
+        category: "shopping",
+        cluster: "coastal",
+        hours: { open: 10, close: 18, timeAppropriate: ['morning', 'afternoon'] }
+      },
+      { 
+        name: "Bodega Country Store", 
+        type: "Coastal General Store", 
+        description: "Charming country store with local crafts, gifts, and coastal souvenirs", 
+        rating: 4.4, 
+        priceRange: "$$",
+        localInsight: "The locally-made pottery section features pieces from Bodega Bay artists",
+        driveTime: "24 min drive",
+        category: "shopping",
+        cluster: "coastal",
+        hours: { open: 9, close: 17, timeAppropriate: ['morning', 'afternoon'] }
+      },
+      { 
+        name: "Diekmann's Bay Store", 
+        type: "Historic Fish Market & Deli", 
+        description: "70+ year Bodega Bay institution - fresh fish market and deli", 
+        rating: 4.6, 
+        priceRange: "$$",
+        localInsight: "Buy fresh crab here and they'll clean it for free - locals' secret for the best price",
+        driveTime: "26 min drive",
+        category: "shopping",
+        cluster: "coastal",
+        hours: { open: 8, close: 17, timeAppropriate: ['morning', 'afternoon'] }
       },
       { 
         name: "Duncan Mills General Store", 
@@ -351,76 +411,16 @@ const RioNidoLodgeApp = () => {
         category: "shopping",
         cluster: "coastal",
         hours: { open: 10, close: 17, timeAppropriate: ['morning', 'afternoon'] }
-      },
-      { 
-        name: "Andy's Local Market", 
-        type: "Family-Owned Grocery", 
-        description: "Family-owned Sebastopol grocery store since 1979 with local products", 
-        rating: 4.4, 
-        priceRange: "$",
-        localInsight: "Best selection of local wines and the staff knows every producer personally",
-        driveTime: "15 min drive",
-        category: "shopping",
-        cluster: "russian_river",
-        hours: { open: 7, close: 21, timeAppropriate: ['morning', 'afternoon', 'evening'] }
-      },
-      { 
-        name: "Oliver's Market", 
-        type: "Local Sonoma Chain", 
-        description: "Local Sonoma County market chain with gourmet and organic selections", 
-        rating: 4.2, 
-        priceRange: "$",
-        localInsight: "Their deli makes the best sandwiches for river picnics - try the 'Sonoma Turkey'",
-        driveTime: "12 min drive",
-        category: "shopping",
-        cluster: "russian_river",
-        hours: { open: 6, close: 22, timeAppropriate: ['morning', 'afternoon', 'evening'] }
-      },
-      { 
-        name: "Candy & Kites", 
-        type: "Bodega Bay Taffy Shop", 
-        description: "Classic seaside candy shop with homemade saltwater taffy and kites", 
-        rating: 4.7, 
-        priceRange: "$",
-        localInsight: "Watch them pull the taffy through the window - the lavender flavor uses local Sonoma lavender",
-        driveTime: "26 min drive",
-        category: "shopping",
-        cluster: "coastal",
-        hours: { open: 10, close: 18, timeAppropriate: ['morning', 'afternoon'] }
-      },
-      { 
-        name: "Bodega Country Store", 
-        type: "Coastal General Store", 
-        description: "Charming country store with local crafts, gifts, and coastal souvenirs", 
-        rating: 4.4, 
-        priceRange: "$",
-        localInsight: "The locally-made pottery section features pieces from Bodega Bay artists",
-        driveTime: "24 min drive",
-        category: "shopping",
-        cluster: "coastal",
-        hours: { open: 9, close: 17, timeAppropriate: ['morning', 'afternoon'] }
-      },
-      { 
-        name: "Diekmann's Bay Store", 
-        type: "Historic Fish Market & Deli", 
-        description: "70+ year Bodega Bay institution - fresh fish market and deli", 
-        rating: 4.6, 
-        priceRange: "$",
-        localInsight: "Buy fresh crab here and they'll clean it for free - locals' secret for the best price",
-        driveTime: "26 min drive",
-        category: "shopping",
-        cluster: "coastal",
-        hours: { open: 8, close: 17, timeAppropriate: ['morning', 'afternoon'] }
       }
     ]
   };
 
-  // Signature Experiences within 15 miles
+  // Signature Experiences with FULL booking details
   const signatureExperiences = [
     {
       id: 'redwood_meditation',
       name: 'Private Redwood Grove Meditation',
-      description: 'Guided meditation among 800-year-old redwoods at dawn',
+      description: 'Guided meditation among 800-year-old redwoods at dawn with experienced mindfulness instructor',
       location: 'Armstrong Redwoods State Natural Reserve',
       distance: '8 miles',
       duration: '90 minutes',
@@ -433,7 +433,7 @@ const RioNidoLodgeApp = () => {
     {
       id: 'hidden_winery_tour',
       name: 'Secret Cellar Wine Experience',
-      description: 'Private tour of hidden wine cellars with the winemaker',
+      description: 'Private tour of hidden wine cellars with the winemaker, featuring reserve tastings',
       location: 'Undisclosed Westside Road Vineyard',
       distance: '12 miles',
       duration: '3 hours',
@@ -446,7 +446,7 @@ const RioNidoLodgeApp = () => {
     {
       id: 'foraging_adventure',
       name: 'Wild Mushroom & Foraging Walk',
-      description: 'Expert-guided foraging in old-growth redwood understory',
+      description: 'Expert-guided foraging in old-growth redwood understory with cooking lesson',
       location: 'Private forest preserve',
       distance: '6 miles',
       duration: '4 hours',
@@ -468,7 +468,7 @@ const RioNidoLodgeApp = () => {
     { id: 'shopping', label: 'Local Shopping', icon: '🛍️' }
   ];
 
-  // Travel style options
+  // Travel style options - EXACTLY as you like them
   const travelStyles = [
     { id: 'relaxed', label: 'Relaxed Explorer', description: '2-3 activities per day' },
     { id: 'balanced', label: 'Balanced Adventure', description: '4-5 activities per day' },
@@ -481,14 +481,7 @@ const RioNidoLodgeApp = () => {
     return currentHour >= business.hours.open && currentHour < business.hours.close;
   };
 
-  // Get appropriate time of day for activity
-  const getTimeOfDay = (hour) => {
-    if (hour < 12) return 'morning';
-    if (hour < 17) return 'afternoon';
-    return 'evening';
-  };
-
-  // Smart itinerary generation with proper day distribution - FIXED
+  // FIXED: Smart itinerary generation with proper day distribution
   const generateItinerary = () => {
     setLoading(true);
     
@@ -547,10 +540,9 @@ const RioNidoLodgeApp = () => {
     const distributedItinerary = [];
     
     for (let day = 1; day <= guestData.tripDuration; day++) {
-      // Calculate items for this specific day using round-robin distribution
+      // Use modulo to cycle through recommendations across days
       const dayActivities = [];
       
-      // Use modulo to cycle through recommendations across days
       for (let i = 0; i < maxActivitiesPerDay; i++) {
         const recommendationIndex = ((day - 1) * maxActivitiesPerDay + i) % uniqueRecommendations.length;
         if (recommendationIndex < uniqueRecommendations.length) {
@@ -618,16 +610,6 @@ const RioNidoLodgeApp = () => {
     }, 2000);
   };
 
-  // Handle form submission
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (guestData.interests.length === 0) {
-      alert('Please select at least one interest');
-      return;
-    }
-    generateItinerary();
-  };
-
   // Handle interest selection
   const toggleInterest = (interest) => {
     setGuestData(prev => ({
@@ -638,7 +620,7 @@ const RioNidoLodgeApp = () => {
     }));
   };
 
-  // Signature Experience Modal Component
+  // Signature Experience Modal Component - COMPLETE WITH BOOKING
   const SignatureExperienceModal = () => {
     if (!showSignatureModal || !selectedSignatureExperience) return null;
     
@@ -851,7 +833,7 @@ const RioNidoLodgeApp = () => {
           </div>
         </div>
 
-        {/* Travel Style */}
+        {/* Travel Style - EXACTLY AS YOU LIKE IT */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-4">Your Travel Style</label>
           <div className="space-y-3">
@@ -954,7 +936,7 @@ const RioNidoLodgeApp = () => {
         </div>
       </div>
 
-      {/* Signature Experiences */}
+      {/* CLICKABLE Signature Experiences */}
       {guestData.interests.includes('wine') || guestData.interests.includes('nature') ? (
         <div className="bg-gradient-to-r from-amber-50 to-red-50 rounded-2xl shadow-lg p-6 mb-8 border border-amber-200">
           <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center">
