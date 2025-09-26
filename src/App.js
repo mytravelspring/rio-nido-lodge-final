@@ -1,1113 +1,1053 @@
 import React, { useState, useEffect } from 'react';
+import { MapPin, Clock, Star, Users, Car, DollarSign, Navigation, Phone, Calendar, Coffee, Utensils, Camera, TreePine, Waves, Mountain, Wine, Home, Sparkles, Heart, Route } from 'lucide-react';
 
 const RioNidoLodgeApp = () => {
-  const [currentStep, setCurrentStep] = useState('form');
   const [guestData, setGuestData] = useState({
     name: '',
     email: '',
     tripDuration: 1,
-    partySize: 2,
     interests: [],
     travelStyle: 'balanced',
-    specialRequests: '',
-    checkIn: '',
-    weather: 'sunny'
+    budget: 'moderate',
+    allowAlternateDestinations: true,
+    walkingRadius: 'half-mile'
   });
-  const [itinerary, setItinerary] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [shareableLink, setShareableLink] = useState('');
-  const [selectedSignatureExperience, setSelectedSignatureExperience] = useState(null);
-  const [showSignatureModal, setShowSignatureModal] = useState(false);
 
-  // Get current time for business hours
-  const getCurrentHour = () => new Date().getHours();
+  const [generatedItinerary, setGeneratedItinerary] = useState([]);
+  const [currentDay, setCurrentDay] = useState(1);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedExperience, setSelectedExperience] = useState(null);
 
-  // Business database with proper syntax
-  const businessDatabase = {
-    food: [
-      { 
-        name: "boon eat + drink", 
-        type: "Farm-to-Table Restaurant", 
-        description: "Celebrity Chef Crista Luedtke's flagship farm-to-table restaurant", 
-        rating: 4.8, 
-        priceRange: "$$$",
-        localInsight: "Chef's tasting menu changes with what's fresh from local farms that morning",
-        driveTime: "2 min walk",
-        category: "food",
-        cluster: "downtown",
-        hours: { open: 17, close: 22, timeAppropriate: ['evening'] },
-        signature: true
-      },
-      { 
-        name: "The Hot Box", 
-        type: "Gourmet Hot Dogs & Sandwiches", 
-        description: "Creative hot dogs and artisanal sandwiches with local ingredients", 
-        rating: 4.6, 
-        priceRange: "$$",
-        localInsight: "The 'Russian River Dog' topped with local sauerkraut is a hidden menu item",
-        driveTime: "3 min walk",
-        category: "food",
-        cluster: "downtown",
-        hours: { open: 11, close: 19, timeAppropriate: ['afternoon', 'evening'] }
-      },
-      { 
-        name: "Graze", 
-        type: "Lodge Restaurant", 
-        description: "Rio Nido Lodge's own restaurant featuring local Sonoma ingredients", 
-        rating: 4.5, 
-        priceRange: "$$",
-        localInsight: "Lodge guests get priority reservations - try the locally-foraged mushroom dishes",
-        driveTime: "1 min walk",
-        category: "food",
-        cluster: "downtown",
-        hours: { open: 8, close: 21, timeAppropriate: ['morning', 'afternoon', 'evening'] }
-      },
-      { 
-        name: "Hole in the Wall", 
-        type: "Famous Breakfast Spot", 
-        description: "Legendary breakfast restaurant with Dutch baby pancakes and huge portions", 
-        rating: 4.7, 
-        priceRange: "$$",
-        localInsight: "The Dutch baby pancake is the size of a dinner plate - order one to share first!",
-        driveTime: "12 min drive",
-        category: "food",
-        cluster: "sebastopol",
-        hours: { open: 7, close: 14, timeAppropriate: ['morning', 'afternoon'] },
-        signature: true
-      },
-      { 
-        name: "Saucy Mamas", 
-        type: "BBQ & Comfort Food", 
-        description: "Authentic BBQ with house-made sauces and comfort food classics", 
-        rating: 4.4, 
-        priceRange: "$$",
-        localInsight: "Their tri-tip is smoked with local apple wood - comes with 6 house-made sauce options",
-        driveTime: "5 min drive",
-        category: "food",
-        cluster: "downtown",
-        hours: { open: 12, close: 20, timeAppropriate: ['afternoon', 'evening'] }
-      },
-      { 
-        name: "Terrapin Creek Cafe", 
-        type: "Coastal Fine Dining", 
-        description: "Award-winning restaurant featuring fresh Sonoma Coast cuisine", 
-        rating: 4.8, 
-        priceRange: "$$$$",
-        localInsight: "Chef Kenny Kan sources directly from local fishermen - menu changes with daily catch",
-        driveTime: "28 min drive",
-        category: "food",
-        cluster: "coastal",
-        hours: { open: 17, close: 21, timeAppropriate: ['evening'] },
-        signature: true
-      },
-      { 
-        name: "Spud Point Crab Company", 
-        type: "Waterfront Seafood Shack", 
-        description: "Family-owned crab shack with bay views and fresh Dungeness crab", 
-        rating: 4.5, 
-        priceRange: "$$",
-        localInsight: "Come at sunset for the best crab sandwich and harbor views - cash only!",
-        driveTime: "26 min drive",
-        category: "food",
-        cluster: "coastal",
-        hours: { open: 9, close: 18, timeAppropriate: ['morning', 'afternoon'] }
-      },
-      { 
-        name: "Howard's in Occidental", 
-        type: "Famous Breakfast Restaurant", 
-        description: "Legendary breakfast spot famous for fabulous morning meals", 
-        rating: 4.6, 
-        priceRange: "$$",
-        localInsight: "Been serving 'the best breakfast in Sonoma County' since 1946 - expect a wait on weekends",
-        driveTime: "9 min drive",
-        category: "food",
-        cluster: "occidental",
-        hours: { open: 7, close: 14, timeAppropriate: ['morning', 'afternoon'] }
-      },
-      { 
-        name: "Jilly's Roadhouse", 
-        type: "Coastal Roadhouse", 
-        description: "Jenner roadhouse with ocean views and hearty American fare", 
-        rating: 4.2, 
-        priceRange: "$$",
-        localInsight: "Stop here on the drive to the coast - the burger and beer combo is a local favorite",
-        driveTime: "24 min drive",
-        category: "food",
-        cluster: "coastal",
-        hours: { open: 11, close: 20, timeAppropriate: ['afternoon', 'evening'] }
-      },
-      { 
-        name: "Russian River Pub", 
-        type: "Family Gastropub", 
-        description: "Laid-back family spot with large outdoor seating and fire pit", 
-        rating: 4.3, 
-        priceRange: "$$",
-        localInsight: "The outdoor fire pit is perfect for chilly Russian River evenings - s'mores available!",
-        driveTime: "7 min drive",
-        category: "food",
-        cluster: "forestville",
-        hours: { open: 11, close: 21, timeAppropriate: ['afternoon', 'evening'] }
-      }
-    ],
-    
-    coffee: [
-      { 
-        name: "Coffee Bazaar", 
-        type: "Local Coffee Roastery", 
-        description: "Small-batch roastery with beans sourced from sustainable farms", 
-        rating: 4.6, 
-        priceRange: "$$",
-        localInsight: "The owner personally travels to origin farms - try the Guatemala Huehuetenango",
-        driveTime: "3 min walk",
-        category: "coffee",
-        cluster: "downtown",
-        hours: { open: 6, close: 18, timeAppropriate: ['morning', 'afternoon'] }
-      },
-      { 
-        name: "River Electric", 
-        type: "Coffee Shop & Community Hub", 
-        description: "Local gathering spot with specialty coffee and community vibe", 
-        rating: 4.7, 
-        priceRange: "$$",
-        localInsight: "The 'Russian River Roast' is their signature blend - locals gather here for morning gossip",
-        driveTime: "4 min walk",
-        category: "coffee",
-        cluster: "downtown",
-        hours: { open: 7, close: 17, timeAppropriate: ['morning', 'afternoon'] }
-      },
-      { 
-        name: "Big Bottom Market", 
-        type: "Gourmet Market & Café", 
-        description: "Artisanal market with exceptional coffee and baked goods", 
-        rating: 4.4, 
-        priceRange: "$$",
-        localInsight: "Their biscuits are so famous, Food Network featured them twice",
-        driveTime: "5 min walk",
-        category: "coffee",
-        cluster: "downtown",
-        hours: { open: 8, close: 16, timeAppropriate: ['morning', 'afternoon'] }
-      },
-      { 
-        name: "Cafe Aquatica", 
-        type: "Coastal Cafe", 
-        description: "Waterfront coffee and light breakfast on the way to Jenner", 
-        rating: 4.6, 
-        priceRange: "$$",
-        localInsight: "Perfect coffee stop before exploring the coast - get a table on the deck",
-        driveTime: "22 min drive",
-        category: "coffee",
-        cluster: "coastal",
-        hours: { open: 7, close: 16, timeAppropriate: ['morning', 'afternoon'] }
-      }
-    ],
-    
-    wine: [
-      { 
-        name: "Korbel Champagne Cellars", 
-        type: "Historic Champagne Producer", 
-        description: "California's oldest champagne house with guided tastings", 
-        rating: 4.5, 
-        priceRange: "$$",
-        localInsight: "The original hand-carved cellars from 1882 maintain perfect aging temperature",
-        driveTime: "8 min drive",
-        category: "wine",
-        cluster: "russian_river",
-        hours: { open: 10, close: 16, timeAppropriate: ['morning', 'afternoon'] }
-      },
-      { 
-        name: "Furthermore Wines", 
-        type: "Boutique Winery", 
-        description: "Small-production wines in an intimate tasting room", 
-        rating: 4.7, 
-        priceRange: "$$$",
-        localInsight: "Only 500 cases per year - their Pinot Noir sells out by spring",
-        driveTime: "12 min drive",
-        category: "wine",
-        cluster: "russian_river",
-        hours: { open: 11, close: 17, timeAppropriate: ['afternoon'] },
-        signature: true
-      },
-      { 
-        name: "Williams Selyem Winery", 
-        type: "Renowned Pinot Noir Producer", 
-        description: "Legendary winery known for exceptional Russian River Pinot Noir", 
-        rating: 4.8, 
-        priceRange: "$$$$",
-        localInsight: "Wait list only - but lodge guests sometimes get priority tastings",
-        driveTime: "15 min drive",
-        category: "wine",
-        cluster: "russian_river",
-        hours: { open: 11, close: 16, timeAppropriate: ['afternoon'] },
-        signature: true
-      },
-      { 
-        name: "Iron Horse Vineyards", 
-        type: "Sparkling Wine Estate", 
-        description: "Family estate producing world-class sparkling wines since 1976", 
-        rating: 4.6, 
-        priceRange: "$$$",
-        localInsight: "Their bubbles were served at White House state dinners during 4 presidencies",
-        driveTime: "18 min drive",
-        category: "wine",
-        cluster: "russian_river",
-        hours: { open: 10, close: 16, timeAppropriate: ['morning', 'afternoon'] }
-      }
-    ],
-    
-    arts: [
-      { 
-        name: "Guerneville Arts Center", 
-        type: "Community Art Gallery", 
-        description: "Local artists' cooperative showcasing Russian River Valley creativity", 
-        rating: 4.2, 
-        priceRange: "Free",
-        localInsight: "First Friday art walks feature wine and meet the artists",
-        driveTime: "2 min walk",
-        category: "arts",
-        cluster: "downtown",
-        hours: { open: 10, close: 17, timeAppropriate: ['morning', 'afternoon'] }
-      },
-      { 
-        name: "Highland Dell Lodge Sculpture Garden", 
-        type: "Outdoor Art Installation", 
-        description: "Hidden sculpture garden among redwood groves", 
-        rating: 4.4, 
-        priceRange: "$",
-        localInsight: "The metal sculptures change color throughout the day as light filters through trees",
-        driveTime: "6 min drive",
-        category: "arts",
-        cluster: "russian_river",
-        hours: { open: 8, close: 18, timeAppropriate: ['morning', 'afternoon'] }
-      }
-    ],
-    
-    nature: [
-      { 
-        name: "Armstrong Redwoods State Natural Reserve", 
-        type: "Old Growth Redwood Forest", 
-        description: "Ancient redwood cathedral with trees over 1,400 years old", 
-        rating: 4.8, 
-        priceRange: "Free",
-        localInsight: "Visit the Colonel Armstrong tree - it's been growing since before Columbus sailed",
-        driveTime: "8 min drive",
-        category: "nature",
-        cluster: "russian_river",
-        hours: { open: 8, close: 19, timeAppropriate: ['morning', 'afternoon'] },
-        signature: true
-      },
-      { 
-        name: "Russian River", 
-        type: "Swimming & Recreation", 
-        description: "Perfect swimming holes and riverside relaxation", 
-        rating: 4.6, 
-        priceRange: "Free",
-        localInsight: "Johnson's Beach has the warmest, safest swimming - locals' secret spot",
-        driveTime: "4 min walk",
-        category: "nature",
-        cluster: "downtown",
-        hours: { open: 6, close: 20, timeAppropriate: ['morning', 'afternoon', 'evening'] }
-      },
-      { 
-        name: "Goat Rock Beach", 
-        type: "Dramatic Coastline", 
-        description: "Stunning coastal views where Russian River meets the Pacific", 
-        rating: 4.7, 
-        priceRange: "Free",
-        localInsight: "Harbor seals give birth here in spring - bring binoculars for pup watching",
-        driveTime: "25 min drive",
-        category: "nature",
-        cluster: "coastal",
-        hours: { open: 6, close: 20, timeAppropriate: ['morning', 'afternoon', 'evening'] }
-      },
-      { 
-        name: "Salmon Creek Beach", 
-        type: "Expansive Coastal Beach", 
-        description: "Two-mile stretch of sandy beach perfect for walking and beachcombing", 
-        rating: 4.6, 
-        priceRange: "Free",
-        localInsight: "North side is great for surfing, south side is family-friendly with calmer waters",
-        driveTime: "22 min drive",
-        category: "nature",
-        cluster: "coastal",
-        hours: { open: 6, close: 20, timeAppropriate: ['morning', 'afternoon', 'evening'] }
-      },
-      { 
-        name: "Bodega Head", 
-        type: "Dramatic Coastal Headland", 
-        description: "360-degree ocean views and prime whale watching location", 
-        rating: 4.8, 
-        priceRange: "Free",
-        localInsight: "Best whale watching from December-April - bring binoculars and warm clothes",
-        driveTime: "28 min drive",
-        category: "nature",
-        cluster: "coastal",
-        hours: { open: 6, close: 20, timeAppropriate: ['morning', 'afternoon', 'evening'] }
-      }
-    ],
-    
-    shopping: [
-      { 
-        name: "Antique Society", 
-        type: "Vintage Treasures", 
-        description: "Curated antiques and vintage finds in historic building", 
-        rating: 4.3, 
-        priceRange: "$$",
-        localInsight: "The owner finds pieces from old Russian River estates - unique local history",
-        driveTime: "3 min walk",
-        category: "shopping",
-        cluster: "downtown",
-        hours: { open: 10, close: 17, timeAppropriate: ['morning', 'afternoon'] }
-      },
-      { 
-        name: "Andy's Local Market", 
-        type: "Family-Owned Grocery", 
-        description: "Family-owned Sebastopol grocery store since 1979 with local products", 
-        rating: 4.4, 
-        priceRange: "$$",
-        localInsight: "Best selection of local wines and the staff knows every producer personally",
-        driveTime: "15 min drive",
-        category: "shopping",
-        cluster: "sebastopol",
-        hours: { open: 7, close: 21, timeAppropriate: ['morning', 'afternoon', 'evening'] }
-      },
-      { 
-        name: "Oliver's Market", 
-        type: "Local Sonoma Chain", 
-        description: "Local Sonoma County market chain with gourmet and organic selections", 
-        rating: 4.2, 
-        priceRange: "$$",
-        localInsight: "Their deli makes the best sandwiches for river picnics - try the 'Sonoma Turkey'",
-        driveTime: "12 min drive",
-        category: "shopping",
-        cluster: "sebastopol",
-        hours: { open: 6, close: 22, timeAppropriate: ['morning', 'afternoon', 'evening'] }
-      },
-      { 
-        name: "Candy & Kites", 
-        type: "Bodega Bay Taffy Shop", 
-        description: "Classic seaside candy shop with homemade saltwater taffy and kites", 
-        rating: 4.7, 
-        priceRange: "$$",
-        localInsight: "Watch them pull the taffy through the window - the lavender flavor uses local Sonoma lavender",
-        driveTime: "26 min drive",
-        category: "shopping",
-        cluster: "coastal",
-        hours: { open: 10, close: 18, timeAppropriate: ['morning', 'afternoon'] }
-      }
-    ]
+  const hotelConfig = {
+    name: "Rio Nido Lodge",
+    address: "14540 Canyon Two Road, Guerneville, CA 95446",
+    phone: "(707) 869-0821",
+    coordinates: { lat: 38.5024, lng: -122.9876 }
   };
 
-  // Signature Experiences
-  const signatureExperiences = [
+  const interests = [
+    { id: 'wine', label: 'Wine & Tastings', icon: Wine },
+    { id: 'nature', label: 'Nature & Hiking', icon: TreePine },
+    { id: 'food', label: 'Food & Dining', icon: Utensils },
+    { id: 'coast', label: 'Coastal Adventures', icon: Waves },
+    { id: 'adventure', label: 'Outdoor Adventure', icon: Mountain },
+    { id: 'relaxation', label: 'Relaxation & Spa', icon: Heart }
+  ];
+
+  const budgetOptions = [
+    { value: 'budget', label: 'Budget Conscious ($-$$)', icon: '💰', description: 'Great value, under $25-50 per person' },
+    { value: 'moderate', label: 'Moderate Spending ($$-$$$)', icon: '💳', description: 'Balanced experiences, $50-100 per person' },
+    { value: 'splurge', label: 'Luxury Experience ($$$-$$$$)', icon: '✨', description: 'Premium experiences, $100+ per person' }
+  ];
+
+  // Enhanced business database with budget categories and alternate destination data
+  const businessDatabase = [
+    // WINERIES & TASTINGS
     {
-      id: 'redwood_meditation',
-      name: 'Private Redwood Grove Meditation',
-      description: 'Guided meditation among 800-year-old redwoods at dawn with experienced mindfulness instructor',
-      location: 'Armstrong Redwoods State Natural Reserve',
-      distance: '8 miles',
-      duration: '90 minutes',
-      priceRange: '$$$',
-      bookingRequired: true,
-      maxGuests: 6,
-      bestTime: 'sunrise',
-      localInsight: 'This grove has trees that were saplings when the Vikings reached America'
+      category: 'wine',
+      type: 'winery',
+      name: 'Korbel Cellars',
+      description: 'Historic sparkling wine producer with guided tours and tastings',
+      address: '13250 River Rd, Guerneville, CA',
+      distance: '2.5 miles',
+      driveTime: '6 minutes',
+      budget: 'moderate',
+      price: '$20-30 tastings',
+      rating: 4.4,
+      hours: '10am-4:30pm daily',
+      phone: '(707) 824-7000',
+      specialties: ['Sparkling wines', 'Historic tours', 'Garden setting'],
+      isSignature: false,
+      alternateDestinations: [
+        { name: 'Guerneville town square', type: 'stop', driveTime: '3 min' },
+        { name: 'Russian River beaches', type: 'detour', driveTime: '5 min' }
+      ]
     },
     {
-      id: 'hidden_winery_tour',
-      name: 'Secret Cellar Wine Experience',
-      description: 'Private tour of hidden wine cellars with the winemaker, featuring reserve tastings',
-      location: 'Undisclosed Westside Road Vineyard',
+      category: 'wine',
+      type: 'winery',
+      name: 'Furthermore Wines',
+      description: 'Boutique family winery specializing in Russian River Pinot Noir',
+      address: '8465 Occidental Rd, Sebastopol, CA',
+      distance: '15 miles',
+      driveTime: '25 minutes',
+      budget: 'moderate',
+      price: '$25-35 tastings',
+      rating: 4.6,
+      hours: '11am-5pm Thu-Mon',
+      phone: '(707) 823-1681',
+      specialties: ['Pinot Noir', 'Estate wines', 'Intimate tastings'],
+      isSignature: false,
+      alternateDestinations: [
+        { name: 'Occidental village', type: 'stop', driveTime: '5 min' },
+        { name: 'Bohemian Highway scenic drive', type: 'route', driveTime: '0 min' }
+      ]
+    },
+    {
+      category: 'wine',
+      type: 'winery',
+      name: 'Williams Selyem Winery',
+      description: 'Prestigious Pinot Noir producer, reservations required',
+      address: '7227 Westside Rd, Healdsburg, CA',
+      distance: '18 miles',
+      driveTime: '30 minutes',
+      budget: 'splurge',
+      price: '$45-75 tastings',
+      rating: 4.8,
+      hours: '11am-4pm by appointment',
+      phone: '(707) 433-6425',
+      specialties: ['Premium Pinot Noir', 'Vineyard designates', 'Exclusive allocation'],
+      isSignature: true,
+      bookingRequired: 'Advanced reservations essential',
+      alternateDestinations: [
+        { name: 'Westside Road scenic drive', type: 'route', driveTime: '0 min' },
+        { name: 'Healdsburg town square', type: 'stop', driveTime: '10 min' }
+      ]
+    },
+
+    // DINING ESTABLISHMENTS
+    {
+      category: 'food',
+      type: 'restaurant',
+      name: 'River\'s End Restaurant',
+      description: 'Upscale California cuisine with Russian River mouth views',
+      address: '11048 CA-1, Jenner, CA',
       distance: '12 miles',
-      duration: '3 hours',
-      priceRange: '$$$$',
-      bookingRequired: true,
-      maxGuests: 4,
-      bestTime: 'afternoon',
-      localInsight: 'Only 12 people per year get to taste the reserve barrels'
+      driveTime: '20 minutes',
+      budget: 'splurge',
+      price: '$40-65 entrees',
+      rating: 4.3,
+      hours: '4pm-8:30pm Wed-Sun',
+      phone: '(707) 865-2484',
+      specialties: ['Ocean views', 'California cuisine', 'Sunset dining'],
+      isSignature: true,
+      bookingRequired: 'Reservations recommended',
+      alternateDestinations: [
+        { name: 'Jenner headlands overlook', type: 'stop', driveTime: '2 min' },
+        { name: 'Goat Rock Beach', type: 'detour', driveTime: '5 min' }
+      ]
     },
     {
-      id: 'foraging_adventure',
+      category: 'food',
+      type: 'restaurant',
+      name: 'Seaside Metal Oyster Bar',
+      description: 'Fresh oysters and seafood in a casual coastal setting',
+      address: '16222 Main St, Guerneville, CA',
+      distance: '1.2 miles',
+      driveTime: '4 minutes',
+      budget: 'moderate',
+      price: '$18-35 entrees',
+      rating: 4.5,
+      hours: '4pm-9pm Wed-Sun',
+      phone: '(707) 604-7250',
+      specialties: ['Fresh oysters', 'Local seafood', 'Craft cocktails'],
+      isSignature: false,
+      alternateDestinations: [
+        { name: 'Guerneville town walk', type: 'stop', driveTime: '0 min' },
+        { name: 'Russian River Art Gallery', type: 'stop', driveTime: '2 min' }
+      ]
+    },
+    {
+      category: 'food',
+      type: 'restaurant',
+      name: 'Terrapin Creek Cafe',
+      description: 'Hidden culinary gem featuring seasonal coastal cuisine',
+      address: '1580 Eastshore Rd, Bodega Bay, CA',
+      distance: '25 miles',
+      driveTime: '40 minutes',
+      budget: 'splurge',
+      price: '$38-55 entrees',
+      rating: 4.7,
+      hours: '5pm-9pm Thu-Mon',
+      phone: '(707) 875-2700',
+      specialties: ['Seasonal menu', 'Local ingredients', 'Wine pairings'],
+      isSignature: true,
+      bookingRequired: 'Advance reservations essential',
+      alternateDestinations: [
+        { name: 'Bodega Bay harbor', type: 'stop', driveTime: '5 min' },
+        { name: 'Bodega Head scenic overlook', type: 'detour', driveTime: '8 min' }
+      ]
+    },
+    {
+      category: 'food',
+      type: 'casual',
+      name: 'Big Bottom Market',
+      description: 'Gourmet market with prepared foods and local products',
+      address: '16228 Main St, Guerneville, CA',
+      distance: '1.3 miles',
+      driveTime: '4 minutes',
+      budget: 'budget',
+      price: '$8-18 items',
+      rating: 4.6,
+      hours: '8am-7pm daily',
+      phone: '(707) 604-7295',
+      specialties: ['Gourmet sandwiches', 'Local products', 'Wine selection'],
+      isSignature: false,
+      alternateDestinations: [
+        { name: 'Guerneville town square', type: 'stop', driveTime: '1 min' },
+        { name: 'Russian River Park', type: 'stop', driveTime: '3 min' }
+      ]
+    },
+
+    // NATURE & OUTDOOR ACTIVITIES
+    {
+      category: 'nature',
+      type: 'park',
+      name: 'Armstrong Redwoods State Natural Reserve',
+      description: 'Ancient coastal redwood grove with peaceful hiking trails',
+      address: '17000 Armstrong Woods Rd, Guerneville, CA',
+      distance: '2.8 miles',
+      driveTime: '8 minutes',
+      budget: 'budget',
+      price: '$10 parking',
+      rating: 4.8,
+      hours: '8am-sunset daily',
+      phone: '(707) 869-2015',
+      specialties: ['Ancient redwoods', 'Easy hiking', 'Picnic areas'],
+      isSignature: false,
+      alternateDestinations: [
+        { name: 'Austin Creek Recreation Area', type: 'extension', driveTime: '10 min' },
+        { name: 'Guerneville River Access', type: 'stop', driveTime: '8 min' }
+      ]
+    },
+    {
+      category: 'coast',
+      type: 'beach',
+      name: 'Goat Rock Beach',
+      description: 'Dramatic coastline with harbor seals and stunning rock formations',
+      address: 'Goat Rock Rd, Jenner, CA',
+      distance: '13 miles',
+      driveTime: '22 minutes',
+      budget: 'budget',
+      price: 'Free',
+      rating: 4.6,
+      hours: 'Sunrise-sunset',
+      phone: 'N/A',
+      specialties: ['Harbor seals', 'Photography', 'Tide pools'],
+      isSignature: false,
+      alternateDestinations: [
+        { name: 'Jenner village', type: 'stop', driveTime: '5 min' },
+        { name: 'Russian River mouth overlook', type: 'stop', driveTime: '2 min' }
+      ]
+    },
+    {
+      category: 'adventure',
+      type: 'activity',
+      name: 'Redwood Canopy Tours',
+      description: 'Zip-line adventure through the redwood canopy',
+      address: '10 Kiln Ln, Occidental, CA',
+      distance: '20 miles',
+      driveTime: '35 minutes',
+      budget: 'splurge',
+      price: '$99-149 per person',
+      rating: 4.9,
+      hours: '9am-5pm daily, reservations required',
+      phone: '(707) 847-3231',
+      specialties: ['Zip-line tours', 'Canopy views', 'Adventure experience'],
+      isSignature: true,
+      bookingRequired: 'Advance booking required, weather dependent',
+      alternateDestinations: [
+        { name: 'Occidental village', type: 'stop', driveTime: '5 min' },
+        { name: 'Bohemian Highway drive', type: 'route', driveTime: '0 min' }
+      ]
+    },
+
+    // LOCAL SHOPPING & CULTURE
+    {
+      category: 'shopping',
+      type: 'shop',
+      name: 'River Trading Post',
+      description: 'Local artisan goods, river gear, and Sonoma County gifts',
+      address: '16209 First St, Guerneville, CA',
+      distance: '1.1 miles',
+      driveTime: '3 minutes',
+      budget: 'budget',
+      price: '$5-50 items',
+      rating: 4.2,
+      hours: '10am-6pm daily',
+      phone: '(707) 869-9020',
+      specialties: ['Local crafts', 'River gear', 'Unique gifts'],
+      isSignature: false,
+      alternateDestinations: [
+        { name: 'Guerneville art galleries', type: 'stop', driveTime: '2 min' },
+        { name: 'Rainbow Cattle Co.', type: 'stop', driveTime: '1 min' }
+      ]
+    },
+    {
+      category: 'art',
+      type: 'gallery',
+      name: 'Gallery Lulo',
+      description: 'Contemporary art gallery featuring local and regional artists',
+      address: '16215 Main St, Guerneville, CA',
+      distance: '1.2 miles',
+      driveTime: '4 minutes',
+      budget: 'budget',
+      price: 'Free browsing',
+      rating: 4.4,
+      hours: '11am-5pm Fri-Sun',
+      phone: '(707) 869-4109',
+      specialties: ['Local artists', 'Contemporary art', 'Rotating exhibitions'],
+      isSignature: false,
+      alternateDestinations: [
+        { name: 'Guerneville town square', type: 'stop', driveTime: '1 min' },
+        { name: 'Russian River Art Gallery', type: 'stop', driveTime: '2 min' }
+      ]
+    },
+
+    // RELAXATION & SPA
+    {
+      category: 'relaxation',
+      type: 'spa',
+      name: 'Osmosis Day Spa Sanctuary',
+      description: 'Japanese-inspired spa with cedar enzyme baths',
+      address: '209 Bohemian Hwy, Freestone, CA',
+      distance: '22 miles',
+      driveTime: '35 minutes',
+      budget: 'splurge',
+      price: '$95-250 treatments',
+      rating: 4.5,
+      hours: '9am-6pm daily',
+      phone: '(707) 823-8231',
+      specialties: ['Cedar enzyme baths', 'Japanese gardens', 'Meditation gardens'],
+      isSignature: true,
+      bookingRequired: 'Advance reservations recommended',
+      alternateDestinations: [
+        { name: 'Freestone village', type: 'stop', driveTime: '3 min' },
+        { name: 'Wild Flour Bread', type: 'stop', driveTime: '1 min' }
+      ]
+    },
+
+    // ADDITIONAL SIGNATURE EXPERIENCES
+    {
+      category: 'wine',
+      type: 'winery',
+      name: 'Iron Horse Vineyards',
+      description: 'Prestigious sparkling wine estate with stunning valley views',
+      address: '9786 Ross Station Rd, Sebastopol, CA',
+      distance: '16 miles',
+      driveTime: '28 minutes',
+      budget: 'splurge',
+      price: '$35-65 tastings',
+      rating: 4.9,
+      hours: '10am-4:30pm daily',
+      phone: '(707) 887-1507',
+      specialties: ['Estate sparkling wines', 'Panoramic views', 'Historic ranch'],
+      isSignature: true,
+      bookingRequired: 'Reservations required for groups',
+      alternateDestinations: [
+        { name: 'Green Valley scenic drive', type: 'route', driveTime: '0 min' },
+        { name: 'Sebastopol town square', type: 'stop', driveTime: '15 min' }
+      ]
+    },
+    {
+      category: 'food',
+      type: 'restaurant',
+      name: 'Farmhouse Inn Restaurant',
+      description: 'Michelin-starred fine dining with farm-to-table excellence',
+      address: '7871 River Rd, Forestville, CA',
+      distance: '8 miles',
+      driveTime: '15 minutes',
+      budget: 'splurge',
+      price: '$85-125 prix fixe',
+      rating: 4.8,
+      hours: '5:30pm-9pm Thu-Mon',
+      phone: '(707) 887-3300',
+      specialties: ['Michelin star', 'Farm-to-table', 'Wine pairings'],
+      isSignature: true,
+      bookingRequired: 'Advanced reservations essential',
+      alternateDestinations: [
+        { name: 'Forestville village', type: 'stop', driveTime: '2 min' },
+        { name: 'Russian River vineyards', type: 'detour', driveTime: '5 min' }
+      ]
+    },
+    {
+      category: 'adventure',
+      type: 'activity',
+      name: 'Sonoma Canopy Tours',
+      description: 'Spectacular zip-line adventure through ancient redwood forest',
+      address: '6250 Bohemian Hwy, Occidental, CA',
+      distance: '18 miles',
+      driveTime: '32 minutes',
+      budget: 'splurge',
+      price: '$119-169 per person',
+      rating: 4.9,
+      hours: '9am-5pm daily, weather permitting',
+      phone: '(707) 874-6060',
+      specialties: ['Redwood canopy tours', 'Professional guides', 'All skill levels'],
+      isSignature: true,
+      bookingRequired: 'Advance booking required, weight restrictions apply',
+      alternateDestinations: [
+        { name: 'Occidental village square', type: 'stop', driveTime: '8 min' },
+        { name: 'Bohemian Highway scenic drive', type: 'route', driveTime: '0 min' }
+      ]
+    },
+    {
+      category: 'coast',
+      type: 'activity',
+      name: 'Bodega Bay Sailing Adventures',
+      description: 'Private sailing charters on the dramatic Sonoma Coast',
+      address: '1875 Bay Flat Rd, Bodega Bay, CA',
+      distance: '24 miles',
+      driveTime: '38 minutes',
+      budget: 'splurge',
+      price: '$200-400 per person',
+      rating: 4.7,
+      hours: '9am-sunset, weather dependent',
+      phone: '(707) 875-3495',
+      specialties: ['Private sailing', 'Whale watching', 'Sunset cruises'],
+      isSignature: true,
+      bookingRequired: 'Advance reservations required, weather dependent',
+      alternateDestinations: [
+        { name: 'Bodega Bay harbor walk', type: 'stop', driveTime: '3 min' },
+        { name: 'Bodega Head whale watching', type: 'detour', driveTime: '10 min' }
+      ]
+    },
+    {
+      category: 'nature',
+      type: 'activity',
+      name: 'Russian River Hot Air Balloon',
+      description: 'Dawn balloon flights over Russian River wine country',
+      address: 'Guerneville Airport, Guerneville, CA',
+      distance: '3 miles',
+      driveTime: '8 minutes',
+      budget: 'splurge',
+      price: '$225-295 per person',
+      rating: 4.8,
+      hours: 'Dawn flights daily, weather permitting',
+      phone: '(707) 869-0404',
+      specialties: ['Sunrise flights', 'Wine country views', 'Champagne toast'],
+      isSignature: true,
+      bookingRequired: 'Advance booking essential, early morning departure',
+      alternateDestinations: [
+        { name: 'Guerneville town square', type: 'stop', driveTime: '5 min' },
+        { name: 'Russian River parks', type: 'stop', driveTime: '3 min' }
+      ]
+    },
+    {
+      category: 'relaxation',
+      type: 'spa',
+      name: 'Highland Dell Lodge Spa',
+      description: 'Luxury spa treatments in a secluded redwood forest setting',
+      address: '21050 River Blvd, Monte Rio, CA',
+      distance: '4 miles',
+      driveTime: '10 minutes',
+      budget: 'splurge',
+      price: '$150-300 treatments',
+      rating: 4.6,
+      hours: '9am-7pm daily',
+      phone: '(707) 865-1759',
+      specialties: ['Forest spa treatments', 'Couples massage', 'Redwood hot tubs'],
+      isSignature: true,
+      bookingRequired: 'Advance reservations recommended',
+      alternateDestinations: [
+        { name: 'Monte Rio village', type: 'stop', driveTime: '2 min' },
+        { name: 'Russian River beach access', type: 'stop', driveTime: '1 min' }
+      ]
+    },
+    {
+      category: 'nature',
+      type: 'activity',
       name: 'Wild Mushroom & Foraging Walk',
       description: 'Expert-guided foraging in old-growth redwood understory with cooking lesson',
-      location: 'Private forest preserve',
+      address: 'Private forest preserve near Armstrong Woods',
       distance: '6 miles',
-      duration: '4 hours',
-      priceRange: '$$$$',
-      bookingRequired: true,
-      maxGuests: 8,
-      bestTime: 'morning',
-      localInsight: 'Find chanterelles, oyster mushrooms, and wild herbs locals have harvested for generations'
+      driveTime: '12 minutes',
+      budget: 'splurge',
+      price: '$125-175 per person',
+      rating: 4.9,
+      hours: 'Morning tours by appointment',
+      phone: '(707) 869-2847',
+      specialties: ['Chanterelle mushrooms', 'Wild herbs', 'Seasonal foraging'],
+      isSignature: true,
+      bookingRequired: 'Advance booking essential, seasonal availability',
+      alternateDestinations: [
+        { name: 'Armstrong Redwoods visitor center', type: 'stop', driveTime: '3 min' },
+        { name: 'Austin Creek hiking trails', type: 'extension', driveTime: '8 min' }
+      ]
     }
   ];
 
-  // Interest options
-  const interestOptions = [
-    { id: 'food', label: 'Exceptional Dining', icon: '🍽️' },
-    { id: 'coffee', label: 'Coffee & Cafés', icon: '☕' },
-    { id: 'wine', label: 'Wine Tasting', icon: '🍷' },
-    { id: 'arts', label: 'Arts & Culture', icon: '🎨' },
-    { id: 'nature', label: 'Nature & Outdoors', icon: '🌲' },
-    { id: 'shopping', label: 'Local Shopping', icon: '🛍️' }
-  ];
+  const signatureExperiences = businessDatabase.filter(business => business.isSignature);
 
-  // Travel style options
-  const travelStyles = [
-    { id: 'relaxed', label: 'Relaxed Explorer', description: '2-3 activities per day' },
-    { id: 'balanced', label: 'Balanced Adventure', description: '4-5 activities per day' },
-    { id: 'packed', label: 'Full Immersion', description: '6+ activities per day' }
-  ];
+  // Get signature experiences based on selected interests
+  const getInterestBasedSignatureExperiences = () => {
+    if (guestData.interests.length === 0) {
+      // If no interests selected, show first 3
+      return signatureExperiences.slice(0, 3);
+    }
 
-  // Check if business is currently open
-  const isCurrentlyOpen = (business) => {
-    const currentHour = getCurrentHour();
-    return currentHour >= business.hours.open && currentHour < business.hours.close;
+    // First, get signature experiences that match selected interests
+    const matchingExperiences = signatureExperiences.filter(experience => 
+      guestData.interests.includes(experience.category)
+    );
+
+    // Then get remaining signature experiences
+    const otherExperiences = signatureExperiences.filter(experience => 
+      !guestData.interests.includes(experience.category)
+    );
+
+    // Combine them, prioritizing matching interests
+    const combined = [...matchingExperiences, ...otherExperiences];
+    
+    // Return first 3
+    return combined.slice(0, 3);
   };
 
-  // Smart itinerary generation with proper day distribution
-  const generateItinerary = () => {
-    setLoading(true);
-    
-    // Get all relevant businesses
-    let allRecommendations = [];
-    
-    guestData.interests.forEach(interest => {
-      if (businessDatabase[interest]) {
-        allRecommendations = [...allRecommendations, ...businessDatabase[interest]];
-      }
-    });
-
-    // If no interests selected, add some defaults to prevent empty days
-    if (allRecommendations.length === 0) {
-      allRecommendations = [
-        ...businessDatabase.food.slice(0, 3),
-        ...businessDatabase.nature.slice(0, 2),
-        ...businessDatabase.coffee.slice(0, 2)
-      ];
-    }
-
-    // Filter by travel style (number of activities per day)
-    const activitiesPerDay = {
-      'relaxed': 3,
-      'balanced': 4,
-      'packed': 6
-    };
-
-    const maxActivitiesPerDay = activitiesPerDay[guestData.travelStyle] || 4;
-
-    // Score and sort recommendations
-    const scoredRecommendations = allRecommendations.map(business => {
-      let score = business.rating * 10;
-      
-      // Boost signature experiences
-      if (business.signature) score += 15;
-      
-      // Boost currently open businesses
-      if (isCurrentlyOpen(business)) score += 10;
-      
-      // Weather considerations
-      if (guestData.weather === 'rainy' && business.category === 'nature' && !business.name.includes('Armstrong')) {
-        score -= 20;
-      }
-      
-      return { ...business, score };
-    });
-
-    // Remove duplicates and sort by score
-    const uniqueRecommendations = scoredRecommendations
-      .filter((business, index, self) => 
-        index === self.findIndex(b => b.name === business.name))
-      .sort((a, b) => b.score - a.score);
-
-    // FIXED: Proper day distribution algorithm
-    const distributedItinerary = [];
-    
-    for (let day = 1; day <= guestData.tripDuration; day++) {
-      // Use modulo to cycle through recommendations across days
-      const dayActivities = [];
-      
-      for (let i = 0; i < maxActivitiesPerDay; i++) {
-        const recommendationIndex = ((day - 1) * maxActivitiesPerDay + i) % uniqueRecommendations.length;
-        if (recommendationIndex < uniqueRecommendations.length) {
-          dayActivities.push(uniqueRecommendations[recommendationIndex]);
-        }
-      }
-      
-      // If we still don't have enough activities, add more from different clusters
-      while (dayActivities.length < maxActivitiesPerDay && dayActivities.length < uniqueRecommendations.length) {
-        const remainingBusinesses = uniqueRecommendations.filter(
-          business => !dayActivities.find(activity => activity.name === business.name)
-        );
-        if (remainingBusinesses.length > 0) {
-          dayActivities.push(remainingBusinesses[0]);
-        } else {
-          break;
-        }
-      }
-      
-      // Sort activities by optimal timing and location clustering
-      const sortedDayActivities = dayActivities.sort((a, b) => {
-        // Morning activities first
-        if (a.hours.timeAppropriate.includes('morning') && !b.hours.timeAppropriate.includes('morning')) return -1;
-        if (!a.hours.timeAppropriate.includes('morning') && b.hours.timeAppropriate.includes('morning')) return 1;
-        
-        // Then by cluster for efficient routing
-        const clusterOrder = ['downtown', 'forestville', 'sebastopol', 'russian_river', 'occidental', 'coastal'];
-        return clusterOrder.indexOf(a.cluster) - clusterOrder.indexOf(b.cluster);
-      });
-      
-      distributedItinerary.push({
-        day: day,
-        date: new Date(Date.now() + (day - 1) * 24 * 60 * 60 * 1000).toLocaleDateString('en-US', { 
-          weekday: 'long', 
-          month: 'long', 
-          day: 'numeric' 
-        }),
-        activities: sortedDayActivities,
-        cluster: sortedDayActivities.length > 0 ? sortedDayActivities[0].cluster : 'downtown'
-      });
-    }
-
-    // Generate shareable link
-    const shareData = btoa(JSON.stringify({
-      guest: guestData.name,
-      duration: guestData.tripDuration,
-      style: guestData.travelStyle,
-      interests: guestData.interests
-    }));
-    setShareableLink(`${window.location.origin}/?share=${shareData}`);
-
-    // Simulate processing time
-    setTimeout(() => {
-      setItinerary(distributedItinerary);
-      setLoading(false);
-      setCurrentStep('itinerary');
-
-      // Analytics tracking
-      if (window.gtag) {
-        window.gtag('event', 'itinerary_generated', {
-          'custom_map': {'duration': guestData.tripDuration, 'interests': guestData.interests.join(',')},
-          'value': guestData.tripDuration
-        });
-      }
-    }, 2000);
-  };
-
-  // Handle interest selection
-  const toggleInterest = (interest) => {
+  const handleInterestToggle = (interestId) => {
     setGuestData(prev => ({
       ...prev,
-      interests: prev.interests.includes(interest)
-        ? prev.interests.filter(i => i !== interest)
-        : [...prev.interests, interest]
+      interests: prev.interests.includes(interestId)
+        ? prev.interests.filter(id => id !== interestId)
+        : [...prev.interests, interestId]
     }));
   };
 
-  // Signature Experience Modal Component
-  const SignatureExperienceModal = () => {
-    if (!showSignatureModal || !selectedSignatureExperience) return null;
-    
-    return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-        <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-          <div className="p-8">
-            <div className="flex justify-between items-start mb-6">
-              <h2 className="text-3xl font-bold text-gray-900">{selectedSignatureExperience.name}</h2>
-              <button
-                onClick={() => setShowSignatureModal(false)}
-                className="text-gray-400 hover:text-gray-600 text-2xl font-bold"
-              >
-                ×
-              </button>
-            </div>
-            
-            <div className="space-y-6">
-              <div className="bg-gradient-to-r from-amber-50 to-red-50 p-6 rounded-xl border border-amber-200">
-                <h3 className="font-bold text-lg text-amber-900 mb-3">Experience Details</h3>
-                <p className="text-gray-700 text-lg mb-4">{selectedSignatureExperience.description}</p>
-                
-                <div className="grid md:grid-cols-2 gap-4 mb-4">
-                  <div className="space-y-2">
-                    <div className="flex items-center text-sm text-gray-600">
-                      <span className="font-medium mr-2">📍 Location:</span>
-                      <span>{selectedSignatureExperience.location}</span>
-                    </div>
-                    <div className="flex items-center text-sm text-gray-600">
-                      <span className="font-medium mr-2">📏 Distance:</span>
-                      <span>{selectedSignatureExperience.distance}</span>
-                    </div>
-                    <div className="flex items-center text-sm text-gray-600">
-                      <span className="font-medium mr-2">⏱️ Duration:</span>
-                      <span>{selectedSignatureExperience.duration}</span>
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <div className="flex items-center text-sm text-gray-600">
-                      <span className="font-medium mr-2">💰 Price:</span>
-                      <span>{selectedSignatureExperience.priceRange}</span>
-                    </div>
-                    <div className="flex items-center text-sm text-gray-600">
-                      <span className="font-medium mr-2">👥 Max Guests:</span>
-                      <span>{selectedSignatureExperience.maxGuests} people</span>
-                    </div>
-                    <div className="flex items-center text-sm text-gray-600">
-                      <span className="font-medium mr-2">🌅 Best Time:</span>
-                      <span className="capitalize">{selectedSignatureExperience.bestTime}</span>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="bg-amber-100 p-4 rounded-lg border-l-4 border-amber-500">
-                  <h4 className="font-bold text-amber-900 mb-2">💎 Local Insider Knowledge</h4>
-                  <p className="text-amber-800 text-sm">{selectedSignatureExperience.localInsight}</p>
-                </div>
-              </div>
-              
-              <div className="bg-red-50 p-6 rounded-xl border border-red-200">
-                <h3 className="font-bold text-lg text-red-900 mb-3">🎯 Booking Information</h3>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-red-800">Advance Booking Required:</span>
-                    <span className="bg-red-200 text-red-800 px-3 py-1 rounded-full text-sm font-medium">
-                      {selectedSignatureExperience.bookingRequired ? 'Yes - 48-72 hours' : 'Walk-ins Welcome'}
-                    </span>
-                  </div>
-                  <div className="bg-white p-4 rounded-lg border border-red-100">
-                    <p className="text-gray-700 text-sm mb-3">
-                      <strong>To book this exclusive experience:</strong>
-                    </p>
-                    <div className="space-y-2 text-sm text-gray-600">
-                      <p>📞 Call Rio Nido Lodge Concierge: <span className="font-medium">(707) 869-0821</span></p>
-                      <p>✉️ Email: <span className="font-medium">concierge@rionidolodge.com</span></p>
-                      <p>🕐 Best to call between 9AM-5PM for immediate assistance</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            <div className="flex justify-between mt-8">
-              <button
-                onClick={() => setShowSignatureModal(false)}
-                className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-all"
-              >
-                Close
-              </button>
-              <button
-                onClick={() => {
-                  if (window.gtag) {
-                    window.gtag('event', 'signature_experience_interest', {
-                      'custom_map': {'experience': selectedSignatureExperience.name},
-                      'value': 1
-                    });
-                  }
-                  window.open(`tel:(707) 869-0821`, '_self');
-                }}
-                className="px-8 py-3 bg-gradient-to-r from-red-700 to-red-800 text-white rounded-lg hover:from-red-800 hover:to-red-900 transition-all shadow-lg font-medium"
-              >
-                📞 Call to Book
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
+  const filterBusinessesByBudget = (businesses, budget) => {
+    if (budget === 'budget') {
+      return businesses.filter(business => business.budget === 'budget' || business.budget === 'moderate');
+    } else if (budget === 'moderate') {
+      return businesses.filter(business => business.budget === 'moderate' || business.budget === 'splurge');
+    } else { // splurge
+      return businesses; // Show all options for splurge budget
+    }
   };
 
-  // Check for shared itinerary on load
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const sharedData = urlParams.get('share');
-    if (sharedData) {
-      try {
-        const decoded = JSON.parse(atob(sharedData));
-        setGuestData(prev => ({
-          ...prev,
-          name: decoded.guest,
-          tripDuration: decoded.duration,
-          travelStyle: decoded.style,
-          interests: decoded.interests
-        }));
-        setCurrentStep('shared');
-      } catch (e) {
-        console.log('Invalid share link');
+  const generateItinerary = () => {
+    if (!guestData.name || guestData.interests.length === 0) {
+      alert('Please fill in your name and select at least one interest.');
+      return;
+    }
+
+    // Filter businesses by interests and budget
+    let relevantBusinesses = businessDatabase.filter(business => 
+      guestData.interests.includes(business.category)
+    );
+
+    // Apply budget filtering
+    relevantBusinesses = filterBusinessesByBudget(relevantBusinesses, guestData.budget);
+
+    // Sort by rating and signature status
+    relevantBusinesses.sort((a, b) => {
+      if (a.isSignature && !b.isSignature) return -1;
+      if (!a.isSignature && b.isSignature) return 1;
+      return b.rating - a.rating;
+    });
+
+    // Determine activities per day based on travel style
+    const activitiesPerDay = {
+      'relaxed': 2,
+      'balanced': 3,
+      'active': 4
+    };
+
+    const dailyCount = activitiesPerDay[guestData.travelStyle] || 3;
+    const totalActivities = Math.min(relevantBusinesses.length, dailyCount * guestData.tripDuration);
+
+    // Create itinerary with proper day distribution
+    const itinerary = [];
+    for (let day = 1; day <= guestData.tripDuration; day++) {
+      const dayActivities = [];
+      const startIndex = (day - 1) * dailyCount;
+      const endIndex = Math.min(startIndex + dailyCount, totalActivities);
+
+      for (let i = startIndex; i < endIndex; i++) {
+        if (relevantBusinesses[i]) {
+          dayActivities.push({
+            time: i === startIndex ? '9:00 AM' : (i === startIndex + 1 ? '1:00 PM' : '4:00 PM'),
+            activity: relevantBusinesses[i],
+            hasAlternates: guestData.allowAlternateDestinations && relevantBusinesses[i].alternateDestinations?.length > 0
+          });
+        }
+      }
+
+      if (dayActivities.length > 0) {
+        itinerary.push({
+          day,
+          date: new Date(Date.now() + (day - 1) * 24 * 60 * 60 * 1000).toLocaleDateString('en-US', { 
+            weekday: 'long', 
+            month: 'long', 
+            day: 'numeric' 
+          }),
+          activities: dayActivities,
+          totalActivities: dayActivities.length
+        });
       }
     }
-  }, []);
 
-  // Get cluster display name
-  const getClusterName = (cluster) => {
-    const clusterNames = {
-      'downtown': 'Downtown Guerneville',
-      'sebastopol': 'Sebastopol Route',
-      'occidental': 'Occidental Route', 
-      'forestville': 'Forestville Route',
-      'russian_river': 'Russian River Valley',
-      'coastal': 'Coastal Adventures'
-    };
-    return clusterNames[cluster] || cluster;
+    setGeneratedItinerary(itinerary);
+    setCurrentDay(1);
   };
 
-  // Main form component
-  const GuestForm = () => (
-    <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow-xl p-8">
-      <div className="space-y-8">
-        <div className="space-y-6">
-          <h2 className="text-2xl font-bold text-gray-900 text-center">Plan Your Russian River Valley Experience</h2>
+  const openExperienceModal = (experience) => {
+    setSelectedExperience(experience);
+    setIsModalOpen(true);
+  };
+
+  const getBudgetIcon = (budget) => {
+    switch(budget) {
+      case 'budget': return '💰';
+      case 'moderate': return '💳';
+      case 'splurge': return '✨';
+      default: return '💳';
+    }
+  };
+
+  const getBudgetColor = (budget) => {
+    switch(budget) {
+      case 'budget': return 'text-green-600 bg-green-50';
+      case 'moderate': return 'text-blue-600 bg-blue-50';
+      case 'splurge': return 'text-purple-600 bg-purple-50';
+      default: return 'text-blue-600 bg-blue-50';
+    }
+  };
+
+  const currentDayData = generatedItinerary.find(d => d.day === currentDay);
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-red-50 to-rose-50">
+      {/* Header */}
+      <header className="bg-white shadow-sm border-b-2 border-red-200">
+        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center">
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 bg-red-800 rounded-lg flex items-center justify-center">
+              <TreePine className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <h1 className="text-xl font-bold text-gray-900">Rio Nido Lodge</h1>
+              <p className="text-sm text-red-700">Curated Local Experiences</p>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div className="max-w-6xl mx-auto px-4 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           
-          <div className="grid md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Guest Name</label>
-              <input
-                type="text"
-                value={guestData.name}
-                onChange={(e) => setGuestData({...guestData, name: e.target.value})}
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                placeholder="Your name"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
-              <input
-                type="email"
-                value={guestData.email}
-                onChange={(e) => setGuestData({...guestData, email: e.target.value})}
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                placeholder="your@email.com"
-              />
-            </div>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Trip Duration</label>
-              <select
-                value={guestData.tripDuration}
-                onChange={(e) => setGuestData({...guestData, tripDuration: parseInt(e.target.value)})}
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-red-500 focus:border-transparent"
-              >
-                {[1,2,3,4,5,6,7].map(days => (
-                  <option key={days} value={days}>{days} day{days > 1 ? 's' : ''}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Party Size</label>
-              <select
-                value={guestData.partySize}
-                onChange={(e) => setGuestData({...guestData, partySize: parseInt(e.target.value)})}
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-red-500 focus:border-transparent"
-              >
-                {[1,2,3,4,5,6,7,8].map(size => (
-                  <option key={size} value={size}>{size} guest{size > 1 ? 's' : ''}</option>
-                ))}
-              </select>
-            </div>
-          </div>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-4">What interests you? (Select all that apply)</label>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-            {interestOptions.map(interest => (
-              <button
-                key={interest.id}
-                type="button"
-                onClick={() => toggleInterest(interest.id)}
-                className={`p-4 rounded-xl border-2 transition-all text-center ${
-                  guestData.interests.includes(interest.id)
-                    ? 'border-red-500 bg-red-50 text-red-700'
-                    : 'border-gray-200 hover:border-red-300 hover:bg-red-25'
-                }`}
-              >
-                <div className="text-2xl mb-1">{interest.icon}</div>
-                <div className="text-sm font-medium">{interest.label}</div>
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-4">Your Travel Style</label>
-          <div className="space-y-3">
-            {travelStyles.map(style => (
-              <label key={style.id} className="flex items-center p-4 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer">
-                <input
-                  type="radio"
-                  name="travelStyle"
-                  value={style.id}
-                  checked={guestData.travelStyle === style.id}
-                  onChange={(e) => setGuestData({...guestData, travelStyle: e.target.value})}
-                  className="h-4 w-4 text-red-600 focus:ring-red-500"
-                />
-                <div className="ml-3">
-                  <div className="font-medium text-gray-900">{style.label}</div>
-                  <div className="text-sm text-gray-600">{style.description}</div>
-                </div>
-              </label>
-            ))}
-          </div>
-        </div>
-
-        <div className="grid md:grid-cols-2 gap-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Expected Weather</label>
-            <select
-              value={guestData.weather}
-              onChange={(e) => setGuestData({...guestData, weather: e.target.value})}
-              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-red-500 focus:border-transparent"
-            >
-              <option value="sunny">Sunny ☀️</option>
-              <option value="cloudy">Partly Cloudy ⛅</option>
-              <option value="rainy">Rainy 🌧️</option>
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Special Requests</label>
-            <input
-              type="text"
-              value={guestData.specialRequests}
-              onChange={(e) => setGuestData({...guestData, specialRequests: e.target.value})}
-              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-red-500 focus:border-transparent"
-              placeholder="Accessibility, dietary restrictions, etc."
-            />
-          </div>
-        </div>
-
-        <button
-          onClick={() => {
-            if (guestData.interests.length === 0) {
-              alert('Please select at least one interest');
-              return;
-            }
-            generateItinerary();
-          }}
-          className="w-full bg-gradient-to-r from-red-700 to-red-800 text-white py-4 px-6 rounded-xl font-semibold text-lg hover:from-red-800 hover:to-red-900 transition-all shadow-lg"
-        >
-          Create My Curated Itinerary
-        </button>
-      </div>
-    </div>
-  );
-
-  // Loading component
-  const LoadingScreen = () => (
-    <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow-xl p-12 text-center">
-      <div className="animate-spin h-12 w-12 border-4 border-red-200 border-t-red-600 rounded-full mx-auto mb-6"></div>
-      <h2 className="text-2xl font-bold text-gray-900 mb-4">Curating Your Perfect Experience</h2>
-      <div className="text-gray-600 space-y-2">
-        <p>🗺️ Mapping optimal routes through wine country...</p>
-        <p>⏰ Checking current business hours...</p>
-        <p>🎯 Matching activities to your interests...</p>
-        <p>✨ Adding local insider knowledge...</p>
-      </div>
-    </div>
-  );
-
-  // Itinerary display component
-  const ItineraryDisplay = () => (
-    <div className="max-w-4xl mx-auto">
-      <div className="bg-white rounded-2xl shadow-xl p-8 mb-8">
-        <div className="text-center">
-          <div className="flex items-center justify-center mb-4">
-            <div className="w-16 h-12 bg-gradient-to-br from-amber-600 to-red-800 rounded-lg flex items-center justify-center mr-4">
-              <span className="text-white font-bold text-lg">RNL</span>
-            </div>
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">
-                {guestData.name ? `${guestData.name}'s` : 'Your'} Curated Experience
-              </h1>
-              <p className="text-red-700 font-medium">
-                {guestData.tripDuration} day{guestData.tripDuration > 1 ? 's' : ''} of authentic Russian River Valley discoveries
-              </p>
-            </div>
-          </div>
-          <div className="h-1 w-32 bg-red-800 mx-auto rounded-full"></div>
-        </div>
-      </div>
-
-      {guestData.interests.includes('wine') || guestData.interests.includes('nature') ? (
-        <div className="bg-gradient-to-r from-amber-50 to-red-50 rounded-2xl shadow-lg p-6 mb-8 border border-amber-200">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center">
-            <span className="text-2xl mr-2">⭐</span>
-            Exclusive Local Signature Experiences
-          </h2>
-          <div className="grid md:grid-cols-3 gap-6">
-            {signatureExperiences.map(experience => (
-              <button
-                key={experience.id}
-                onClick={() => {
-                  setSelectedSignatureExperience(experience);
-                  setShowSignatureModal(true);
-                }}
-                className="bg-white rounded-xl p-5 shadow-sm border border-amber-100 hover:shadow-lg hover:border-amber-300 transition-all cursor-pointer text-left"
-              >
-                <h3 className="font-bold text-lg text-gray-900 mb-2">{experience.name}</h3>
-                <p className="text-gray-600 text-sm mb-3">{experience.description}</p>
-                <div className="space-y-1 text-xs text-gray-500">
-                  <div>📍 {experience.distance} • {experience.duration}</div>
-                  <div>💰 {experience.priceRange} • Max {experience.maxGuests} guests</div>
-                  <div className="text-amber-700 font-medium">💎 {experience.localInsight}</div>
-                </div>
-                <div className="flex items-center justify-between mt-4">
-                  <div className="bg-red-100 text-red-800 text-xs px-3 py-1 rounded-full">
-                    Booking Required
-                  </div>
-                  <div className="text-red-600 text-sm font-medium hover:text-red-700">
-                    Click for Details →
-                  </div>
-                </div>
-              </button>
-            ))}
-          </div>
-        </div>
-      ) : null}
-
-      <div className="space-y-8">
-        {itinerary?.map(day => (
-          <div key={day.day} className="bg-white rounded-2xl shadow-xl overflow-hidden">
-            <div className="bg-gradient-to-r from-red-700 to-red-800 text-white p-6">
-              <h2 className="text-2xl font-bold flex items-center">
-                <span className="bg-white text-red-800 rounded-full w-8 h-8 flex items-center justify-center mr-3 font-bold">
-                  {day.day}
-                </span>
-                Day {day.day}
+          {/* Left Column - Guest Information */}
+          <div className="space-y-6">
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+                <Users className="w-6 h-6 mr-2 text-red-700" />
+                Plan Your Perfect Stay
               </h2>
-              <p className="text-red-100 mt-1">{day.date}</p>
-              <div className="mt-2 text-red-200 text-sm">
-                🗺️ {getClusterName(day.cluster)} Focus
+
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Guest Name</label>
+                    <input
+                      type="text"
+                      className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-red-600 focus:border-transparent"
+                      placeholder="Enter your name"
+                      value={guestData.name}
+                      onChange={(e) => setGuestData(prev => ({ ...prev, name: e.target.value }))}
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Trip Duration</label>
+                    <select
+                      className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-red-600"
+                      value={guestData.tripDuration}
+                      onChange={(e) => setGuestData(prev => ({ ...prev, tripDuration: parseInt(e.target.value) }))}
+                    >
+                      {[1, 2, 3, 4, 5].map(days => (
+                        <option key={days} value={days}>{days} day{days > 1 ? 's' : ''}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                {/* Budget Selection */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-3">Budget Preference</label>
+                  <div className="grid grid-cols-1 gap-3">
+                    {budgetOptions.map((option) => (
+                      <div
+                        key={option.value}
+                        className={`p-3 border-2 rounded-lg cursor-pointer transition-all ${
+                          guestData.budget === option.value
+                            ? 'border-red-600 bg-red-50'
+                            : 'border-gray-200 hover:border-gray-300'
+                        }`}
+                        onClick={() => setGuestData(prev => ({ ...prev, budget: option.value }))}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-3">
+                            <span className="text-xl">{option.icon}</span>
+                            <div>
+                              <p className="font-medium text-gray-900">{option.label}</p>
+                              <p className="text-sm text-gray-600">{option.description}</p>
+                            </div>
+                          </div>
+                          <div className={`w-4 h-4 rounded-full border-2 ${
+                            guestData.budget === option.value 
+                              ? 'border-red-600 bg-red-600' 
+                              : 'border-gray-300'
+                          }`}>
+                            {guestData.budget === option.value && (
+                              <div className="w-2 h-2 bg-white rounded-full mx-auto mt-0.5"></div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Travel Style */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Travel Style</label>
+                  <select
+                    className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-red-600"
+                    value={guestData.travelStyle}
+                    onChange={(e) => setGuestData(prev => ({ ...prev, travelStyle: e.target.value }))}
+                  >
+                    <option value="relaxed">Relaxed Explorer (2 activities/day)</option>
+                    <option value="balanced">Balanced Adventure (3 activities/day)</option>
+                    <option value="active">Active Adventurer (4 activities/day)</option>
+                  </select>
+                </div>
+
+                {/* Alternate Destinations Toggle */}
+                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <div>
+                    <p className="font-medium text-gray-900">Include Alternate Destinations</p>
+                    <p className="text-sm text-gray-600">Show optional stops and detours along your routes</p>
+                  </div>
+                  <button
+                    onClick={() => setGuestData(prev => ({ ...prev, allowAlternateDestinations: !prev.allowAlternateDestinations }))}
+                    className={`w-12 h-6 rounded-full transition-all ${
+                      guestData.allowAlternateDestinations ? 'bg-red-600' : 'bg-gray-300'
+                    }`}
+                  >
+                    <div className={`w-5 h-5 bg-white rounded-full transition-transform ${
+                      guestData.allowAlternateDestinations ? 'translate-x-6' : 'translate-x-0.5'
+                    }`}></div>
+                  </button>
+                </div>
+
+                {/* Interests Selection */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-3">What interests you?</label>
+                  <div className="grid grid-cols-2 gap-3">
+                    {interests.map((interest) => {
+                      const Icon = interest.icon;
+                      const isSelected = guestData.interests.includes(interest.id);
+                      return (
+                        <button
+                          key={interest.id}
+                          onClick={() => handleInterestToggle(interest.id)}
+                          className={`p-3 rounded-lg border-2 transition-all text-left ${
+                            isSelected
+                              ? 'border-red-600 bg-red-50 text-red-800'
+                              : 'border-gray-200 hover:border-gray-300 text-gray-700'
+                          }`}
+                        >
+                          <Icon className={`w-5 h-5 mb-2 ${isSelected ? 'text-red-700' : 'text-gray-500'}`} />
+                          <p className="text-sm font-medium">{interest.label}</p>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <button
+                  onClick={generateItinerary}
+                  className="w-full bg-red-700 text-white py-3 px-6 rounded-lg hover:bg-red-800 transition-colors font-medium"
+                >
+                  Generate My Itinerary
+                </button>
               </div>
             </div>
-            
-            <div className="p-6">
-              {day.activities.length === 0 ? (
-                <div className="text-center py-8 text-gray-500">
-                  <div className="text-4xl mb-4">🌲</div>
-                  <h3 className="text-lg font-medium">Relaxation Day</h3>
-                  <p>Perfect day to enjoy the lodge amenities or explore at your own pace</p>
-                </div>
-              ) : (
-                <div className="space-y-6">
-                  {day.activities.map((activity, index) => (
-                    <div key={index} className="flex items-start space-x-4 p-4 rounded-xl border border-gray-100 hover:bg-gray-50 transition-all">
-                      <div className="flex-shrink-0 w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
-                        <span className="text-red-600 font-bold">
-                          {activity.category === 'food' ? '🍽️' :
-                           activity.category === 'coffee' ? '☕' :
-                           activity.category === 'wine' ? '🍷' :
-                           activity.category === 'arts' ? '🎨' :
-                           activity.category === 'nature' ? '🌲' : '🛍️'}
-                        </span>
-                      </div>
-                      
-                      <div className="flex-grow">
-                        <div className="flex items-start justify-between">
-                          <div>
-                            <h3 className="font-bold text-lg text-gray-900">{activity.name}</h3>
-                            <p className="text-red-600 font-medium text-sm">{activity.type}</p>
-                          </div>
-                          <div className="text-right flex-shrink-0 ml-4">
-                            <div className="flex items-center space-x-2">
-                              <span className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-medium">
-                                ⭐ {activity.rating}
-                              </span>
-                              <span className="text-gray-600 text-sm">{activity.priceRange}</span>
-                              {isCurrentlyOpen(activity) && (
-                                <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
-                                  Open Now
-                                </span>
-                              )}
-                            </div>
-                            <div className="text-gray-500 text-sm mt-1">{activity.driveTime}</div>
-                          </div>
-                        </div>
-                        
-                        <p className="text-gray-700 mt-2">{activity.description}</p>
-                        
-                        <div className="mt-3 p-3 bg-amber-50 rounded-lg border-l-4 border-amber-400">
-                          <div className="flex items-start">
-                            <span className="text-amber-600 mr-2">💡</span>
-                            <p className="text-amber-800 text-sm font-medium">{activity.localInsight}</p>
-                          </div>
-                        </div>
-                        
-                        <div className="flex items-center mt-3 text-sm text-gray-600 space-x-4">
-                          <span>⏰ Open {activity.hours.open}:00 - {activity.hours.close}:00</span>
-                          <span>📍 {getClusterName(activity.cluster)}</span>
-                          {activity.signature && (
-                            <span className="bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs font-medium">
-                              ⭐ Signature Experience
+
+            {/* Signature Experiences */}
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <h3 className="text-xl font-semibold mb-6 flex items-center">
+                <Sparkles className="w-6 h-6 mr-3 text-purple-600" />
+                Signature Experiences
+              </h3>
+              <p className="text-gray-600 mb-4 text-sm">
+                Premium experiences worth the splurge - 
+                {guestData.interests.length > 0 
+                  ? ' personalized based on your interests' 
+                  : ' select your interests above to see personalized recommendations'
+                }
+              </p>
+              <div className="space-y-4">
+                {getInterestBasedSignatureExperiences().map((experience, index) => {
+                  const isMatchingInterest = guestData.interests.includes(experience.category);
+                  return (
+                  <div
+                    key={index}
+                    onClick={() => openExperienceModal(experience)}
+                    className={`p-4 border rounded-lg cursor-pointer transition-all ${
+                      isMatchingInterest 
+                        ? 'border-red-300 bg-red-50 hover:border-red-400 hover:bg-red-100' 
+                        : 'border-gray-200 hover:border-purple-300 hover:bg-purple-50'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-2 mb-2">
+                          <h4 className="font-semibold text-gray-900">{experience.name}</h4>
+                          {isMatchingInterest && (
+                            <span className="text-xs px-2 py-1 rounded-full bg-red-200 text-red-800">
+                              Matches your interests
                             </span>
                           )}
                         </div>
+                        <p className="text-sm text-gray-600 mb-3">{experience.description}</p>
+                        <div className="flex items-center space-x-3">
+                          <span className={`text-xs px-2 py-1 rounded-full ${getBudgetColor(experience.budget)}`}>
+                            {getBudgetIcon(experience.budget)} {experience.budget}
+                          </span>
+                          <span className="text-xs text-gray-500 flex items-center">
+                            <Car className="w-3 h-3 mr-1" />
+                            {experience.driveTime}
+                          </span>
+                          <span className="text-xs text-gray-500 flex items-center">
+                            <Star className="w-3 h-3 mr-1" />
+                            {experience.rating}
+                          </span>
+                        </div>
+                      </div>
+                      <Sparkles className="w-6 h-6 text-purple-400 ml-3" />
+                    </div>
+                  </div>
+                )})}
+              </div>
+              <div className="mt-4 text-center">
+                <p className="text-xs text-gray-500">
+                  {guestData.interests.length > 0 
+                    ? 'Experiences highlighted in red match your selected interests' 
+                    : 'Select interests above to see personalized signature experiences'
+                  }
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column - Generated Itinerary */}
+          <div className="space-y-6">
+            {generatedItinerary.length > 0 && (
+              <>
+                <div className="bg-white rounded-lg shadow-md p-6">
+                  <div className="text-center mb-6">
+                    <h2 className="text-2xl font-bold text-gray-900">
+                      {guestData.name ? `${guestData.name}'s` : 'Your'} Hyperlocal Experience
+                    </h2>
+                    <p className="text-red-700">
+                      {guestData.tripDuration} day{guestData.tripDuration > 1 ? 's' : ''} of curated local gems near {hotelConfig.name}
+                    </p>
+                    <div className="flex items-center justify-center space-x-4 mt-2">
+                      <span className={`text-sm px-3 py-1 rounded-full ${getBudgetColor(guestData.budget)}`}>
+                        {getBudgetIcon(guestData.budget)} {guestData.budget.charAt(0).toUpperCase() + guestData.budget.slice(1)} Budget
+                      </span>
+                      {guestData.allowAlternateDestinations && (
+                        <span className="text-sm px-3 py-1 rounded-full bg-orange-50 text-orange-600">
+                          <Route className="w-3 h-3 inline mr-1" />
+                          Alternate routes included
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Day Navigation */}
+                  <div className="flex space-x-2 overflow-x-auto mb-6">
+                    {generatedItinerary.map((dayData) => (
+                      <button
+                        key={dayData.day}
+                        onClick={() => setCurrentDay(dayData.day)}
+                        className={`px-4 py-2 rounded-lg whitespace-nowrap ${
+                          currentDay === dayData.day
+                            ? 'bg-red-700 text-white'
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        }`}
+                      >
+                        Day {dayData.day}
+                        <span className="block text-xs opacity-75">
+                          {dayData.totalActivities} activities
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Current Day Details */}
+                  {currentDayData && (
+                    <div>
+                      <div className="mb-4">
+                        <h3 className="text-lg font-semibold text-gray-900">Day {currentDay}</h3>
+                        <p className="text-gray-600">{currentDayData.date}</p>
+                      </div>
+
+                      <div className="space-y-4">
+                        {currentDayData.activities.map((item, index) => (
+                          <div key={index} className="border border-gray-200 rounded-lg p-4">
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <div className="flex items-center space-x-2 mb-2">
+                                  <Clock className="w-4 h-4 text-gray-400" />
+                                  <span className="text-sm font-medium text-gray-600">{item.time}</span>
+                                  <span className={`text-xs px-2 py-1 rounded-full ${getBudgetColor(item.activity.budget)}`}>
+                                    {getBudgetIcon(item.activity.budget)} {item.activity.budget}
+                                  </span>
+                                  {item.activity.isSignature && (
+                                    <span className="text-xs px-2 py-1 rounded-full bg-purple-50 text-purple-600">
+                                      <Sparkles className="w-3 h-3 inline mr-1" />
+                                      Signature
+                                    </span>
+                                  )}
+                                </div>
+                                
+                                <h4 className="font-semibold text-gray-900 mb-1">{item.activity.name}</h4>
+                                <p className="text-gray-600 text-sm mb-2">{item.activity.description}</p>
+                                
+                                <div className="flex items-center space-x-4 text-sm text-gray-500">
+                                  <div className="flex items-center space-x-1">
+                                    <MapPin className="w-4 h-4" />
+                                    <span>{item.activity.distance}</span>
+                                  </div>
+                                  <div className="flex items-center space-x-1">
+                                    <Car className="w-4 h-4" />
+                                    <span>{item.activity.driveTime}</span>
+                                  </div>
+                                  <div className="flex items-center space-x-1">
+                                    <Star className="w-4 h-4" />
+                                    <span>{item.activity.rating}</span>
+                                  </div>
+                                  <div className="flex items-center space-x-1">
+                                    <DollarSign className="w-4 h-4" />
+                                    <span>{item.activity.price}</span>
+                                  </div>
+                                </div>
+
+                                {/* Alternate Destinations */}
+                                {item.hasAlternates && (
+                                  <div className="mt-3 p-2 bg-orange-50 rounded-lg">
+                                    <p className="text-xs font-medium text-orange-700 mb-1">Alternative stops along the way:</p>
+                                    <div className="space-y-1">
+                                      {item.activity.alternateDestinations.map((alt, altIndex) => (
+                                        <div key={altIndex} className="flex items-center space-x-2 text-xs text-orange-600">
+                                          <Navigation className="w-3 h-3" />
+                                          <span>{alt.name}</span>
+                                          <span className="text-orange-500">({alt.type}, +{alt.driveTime})</span>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+
+                              {item.activity.isSignature && (
+                                <button
+                                  onClick={() => openExperienceModal(item.activity)}
+                                  className="ml-4 text-purple-600 hover:text-purple-800"
+                                >
+                                  <Sparkles className="w-5 h-5" />
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        ))}
                       </div>
                     </div>
-                  ))}
+                  )}
                 </div>
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
+              </>
+            )}
 
-      <div className="mt-8 bg-white rounded-2xl shadow-xl p-6">
-        <h2 className="text-xl font-bold text-gray-900 mb-4">Share Your Itinerary</h2>
-        <div className="flex items-center space-x-3">
-          <input
-            type="text"
-            value={shareableLink}
-            readOnly
-            className="flex-grow px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-sm"
-          />
-          <button
-            onClick={() => navigator.clipboard?.writeText(shareableLink)}
-            className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-          >
-            Copy Link
-          </button>
-        </div>
-      </div>
-
-      <div className="mt-8 flex justify-center space-x-4">
-        <button
-          onClick={() => setCurrentStep('form')}
-          className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-all"
-        >
-          Create New Itinerary
-        </button>
-        <button
-          onClick={() => window.print()}
-          className="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all"
-        >
-          Print Itinerary
-        </button>
-      </div>
-    </div>
-  );
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-red-50 via-amber-25 to-red-100">
-      <div className="bg-white shadow-sm border-b border-red-100">
-        <div className="max-w-6xl mx-auto px-4 py-4">
-          <div className="flex items-center">
-            <div className="w-20 h-16 bg-gradient-to-br from-amber-600 to-red-800 rounded-lg flex items-center justify-center mr-6 shadow-lg">
-              <span className="text-white font-bold text-xl">RNL</span>
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Rio Nido Lodge</h1>
-              <p className="text-red-600 font-medium">Curated Russian River Valley Experiences</p>
-            </div>
+            {generatedItinerary.length === 0 && (
+              <div className="bg-white rounded-lg shadow-md p-8 text-center">
+                <TreePine className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">Ready to explore?</h3>
+                <p className="text-gray-600">Fill out your preferences and we'll create a personalized itinerary just for you!</p>
+              </div>
+            )}
           </div>
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 py-8">
-        {currentStep === 'form' && <GuestForm />}
-        {currentStep === 'loading' && <LoadingScreen />}
-        {(currentStep === 'itinerary' || currentStep === 'shared') && itinerary && <ItineraryDisplay />}
-        {loading && <LoadingScreen />}
-      </div>
-      
-      <SignatureExperienceModal />
+      {/* Experience Modal */}
+      {isModalOpen && selectedExperience && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg max-w-lg w-full max-h-96 overflow-y-auto">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xl font-bold text-gray-900">{selectedExperience.name}</h3>
+                <button
+                  onClick={() => setIsModalOpen(false)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  ✕
+                </button>
+              </div>
+              
+              <div className="space-y-4">
+                <p className="text-gray-700">{selectedExperience.description}</p>
+                
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div className="flex items-center space-x-2">
+                    <MapPin className="w-4 h-4 text-gray-400" />
+                    <span>{selectedExperience.distance} away</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Clock className="w-4 h-4 text-gray-400" />
+                    <span>{selectedExperience.driveTime} drive</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Star className="w-4 h-4 text-gray-400" />
+                    <span>{selectedExperience.rating} rating</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <DollarSign className="w-4 h-4 text-gray-400" />
+                    <span>{selectedExperience.price}</span>
+                  </div>
+                </div>
+
+                {selectedExperience.specialties && (
+                  <div>
+                    <h4 className="font-medium text-gray-900 mb-2">Specialties:</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {selectedExperience.specialties.map((specialty, index) => (
+                        <span key={index} className="px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full">
+                          {specialty}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {selectedExperience.bookingRequired && (
+                  <div className="p-3 bg-yellow-50 rounded-lg">
+                    <div className="flex items-center space-x-2">
+                      <Calendar className="w-4 h-4 text-yellow-600" />
+                      <span className="text-sm font-medium text-yellow-800">Booking Required</span>
+                    </div>
+                    <p className="text-sm text-yellow-700 mt-1">{selectedExperience.bookingRequired}</p>
+                  </div>
+                )}
+
+                <div className="flex space-x-3">
+                  <a
+                    href={`tel:${selectedExperience.phone}`}
+                    className="flex-1 bg-red-700 text-white py-2 px-4 rounded-lg text-center hover:bg-red-800 transition-colors"
+                  >
+                    <Phone className="w-4 h-4 inline mr-2" />
+                    Call to Book
+                  </a>
+                  <button
+                    onClick={() => setIsModalOpen(false)}
+                    className="flex-1 bg-gray-200 text-gray-800 py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors"
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
