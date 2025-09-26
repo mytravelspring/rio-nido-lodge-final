@@ -22,13 +22,14 @@ const RioNidoLodgeApp = () => {
   // Get current time for business hours
   const getCurrentHour = () => new Date().getHours();
 
-  // COMPLETE Business database with ALL requested businesses
+  // EXPANDED Business database with ALL routes: Guerneville, Sebastopol, Occidental, Forestville, Bodega Bay
   const businessDatabase = {
     food: [
+      // GUERNEVILLE
       { 
         name: "boon eat + drink", 
         type: "Farm-to-Table Restaurant", 
-        description: "Sophisticated farm-to-table dining with Russian River Valley ingredients", 
+        description: "Celebrity Chef Crista Luedtke's flagship farm-to-table restaurant", 
         rating: 4.8, 
         priceRange: "$$$",
         localInsight: "Chef's tasting menu changes with what's fresh from local farms that morning",
@@ -51,53 +52,28 @@ const RioNidoLodgeApp = () => {
         hours: { open: 11, close: 19, timeAppropriate: ['afternoon', 'evening'] }
       },
       { 
-        name: "Seaside Metal", 
-        type: "Oyster Bar & Grill", 
-        description: "Fresh coastal cuisine with panoramic ocean views", 
-        rating: 4.6, 
+        name: "Graze", 
+        type: "Lodge Restaurant", 
+        description: "Rio Nido Lodge's own restaurant featuring local Sonoma ingredients", 
+        rating: 4.5, 
         priceRange: "$$",
-        localInsight: "Their Dungeness crab Benedict uses crab caught that morning in Bodega Bay",
-        driveTime: "25 min drive",
+        localInsight: "Lodge guests get priority reservations - try the locally-foraged mushroom dishes",
+        driveTime: "1 min walk",
         category: "food",
-        cluster: "coastal",
+        cluster: "downtown",
         hours: { open: 8, close: 21, timeAppropriate: ['morning', 'afternoon', 'evening'] }
       },
       { 
-        name: "Terrapin Creek Cafe", 
-        type: "Coastal Fine Dining", 
-        description: "Award-winning restaurant featuring fresh Sonoma Coast cuisine", 
-        rating: 4.8, 
-        priceRange: "$$$$",
-        localInsight: "Chef Kenny Kan sources directly from local fishermen - menu changes with daily catch",
-        driveTime: "28 min drive",
+        name: "Pat's Restaurant", 
+        type: "Local Diner", 
+        description: "Classic American diner beloved by locals since 1956", 
+        rating: 4.3, 
+        priceRange: "$",
+        localInsight: "The blueberry pancakes are made with berries from the owner's backyard",
+        driveTime: "4 min drive",
         category: "food",
-        cluster: "coastal",
-        hours: { open: 17, close: 21, timeAppropriate: ['evening'] },
-        signature: true
-      },
-      { 
-        name: "River's End Restaurant", 
-        type: "Oceanfront Fine Dining", 
-        description: "Upscale restaurant perched on cliffs above the Pacific", 
-        rating: 4.7, 
-        priceRange: "$$$",
-        localInsight: "Reserve a sunset table - the view of Goat Rock is magical",
-        driveTime: "22 min drive",
-        category: "food",
-        cluster: "coastal",
-        hours: { open: 17, close: 21, timeAppropriate: ['evening'] }
-      },
-      { 
-        name: "Spud Point Crab Company", 
-        type: "Waterfront Seafood Shack", 
-        description: "Family-owned crab shack with bay views and fresh Dungeness crab", 
-        rating: 4.5, 
-        priceRange: "$$",
-        localInsight: "Come at sunset for the best crab sandwich and harbor views - cash only!",
-        driveTime: "26 min drive",
-        category: "food",
-        cluster: "coastal",
-        hours: { open: 9, close: 18, timeAppropriate: ['morning', 'afternoon'] }
+        cluster: "downtown",
+        hours: { open: 7, close: 14, timeAppropriate: ['morning', 'afternoon'] }
       },
       { 
         name: "Guerneville Taco Truck", 
@@ -112,19 +88,176 @@ const RioNidoLodgeApp = () => {
         hours: { open: 11, close: 20, timeAppropriate: ['afternoon', 'evening'] }
       },
       { 
-        name: "Pat's Restaurant", 
-        type: "Local Diner", 
-        description: "Classic American diner beloved by locals since 1956", 
-        rating: 4.3, 
-        priceRange: "$",
-        localInsight: "The blueberry pancakes are made with berries from the owner's backyard",
-        driveTime: "4 min drive",
+        name: "Saucy Mamas", 
+        type: "BBQ & Comfort Food", 
+        description: "Authentic BBQ with house-made sauces and comfort food classics", 
+        rating: 4.4, 
+        priceRange: "$$",
+        localInsight: "Their tri-tip is smoked with local apple wood - comes with 6 house-made sauce options",
+        driveTime: "5 min drive",
         category: "food",
         cluster: "downtown",
+        hours: { open: 12, close: 20, timeAppropriate: ['afternoon', 'evening'] }
+      },
+      
+      // SEBASTOPOL RESTAURANTS (10-12 miles)
+      { 
+        name: "Hole in the Wall", 
+        type: "Famous Breakfast Spot", 
+        description: "Legendary breakfast restaurant with Dutch baby pancakes and huge portions", 
+        rating: 4.7, 
+        priceRange: "$$",
+        localInsight: "The Dutch baby pancake is the size of a dinner plate - order one to share first!",
+        driveTime: "12 min drive",
+        category: "food",
+        cluster: "sebastopol",
+        hours: { open: 7, close: 14, timeAppropriate: ['morning', 'afternoon'] },
+        signature: true
+      },
+      { 
+        name: "Campanella Kitchen & Garden Patio", 
+        type: "Farm-to-Table Fine Dining", 
+        description: "Top-rated fine dining with ingredients from their own garden", 
+        rating: 4.8, 
+        priceRange: "$$$",
+        localInsight: "The chef picks vegetables from the garden during your meal - ultimate farm-to-table",
+        driveTime: "12 min drive",
+        category: "food",
+        cluster: "sebastopol",
+        hours: { open: 17, close: 21, timeAppropriate: ['evening'] },
+        signature: true
+      },
+      { 
+        name: "Ramen Gaijin", 
+        type: "Authentic Ramen", 
+        description: "Excellent authentic ramen with rich broths and house-made noodles", 
+        rating: 4.6, 
+        priceRange: "$$",
+        localInsight: "The tonkotsu broth simmers for 24 hours - locals know to come early before it sells out",
+        driveTime: "11 min drive",
+        category: "food",
+        cluster: "sebastopol",
+        hours: { open: 11, close: 21, timeAppropriate: ['afternoon', 'evening'] }
+      },
+      { 
+        name: "HopMonk Tavern", 
+        type: "Gastropub with Live Music", 
+        description: "Large outdoor dining with craft beer and live music", 
+        rating: 4.4, 
+        priceRange: "$$",
+        localInsight: "Saturday night jazz sessions draw musicians from all over Sonoma County",
+        driveTime: "13 min drive",
+        category: "food",
+        cluster: "sebastopol",
+        hours: { open: 11, close: 22, timeAppropriate: ['afternoon', 'evening'] }
+      },
+      { 
+        name: "Blue Ridge Kitchen", 
+        type: "Wood-Fired Grill", 
+        description: "Farmhouse-style grill at The Barlow with wood-fired cooking", 
+        rating: 4.5, 
+        priceRange: "$$",
+        localInsight: "Everything is cooked over local oak - even the vegetables get the wood-fire treatment",
+        driveTime: "12 min drive",
+        category: "food",
+        cluster: "sebastopol",
+        hours: { open: 11, close: 21, timeAppropriate: ['afternoon', 'evening'] }
+      },
+      
+      // OCCIDENTAL (8-10 miles)
+      { 
+        name: "Howard's in Occidental", 
+        type: "Famous Breakfast Restaurant", 
+        description: "Legendary breakfast spot famous for fabulous morning meals", 
+        rating: 4.6, 
+        priceRange: "$$",
+        localInsight: "Been serving 'the best breakfast in Sonoma County' since 1946 - expect a wait on weekends",
+        driveTime: "9 min drive",
+        category: "food",
+        cluster: "occidental",
         hours: { open: 7, close: 14, timeAppropriate: ['morning', 'afternoon'] }
+      },
+      { 
+        name: "The Shed Cafe", 
+        type: "Farm-to-Table Cafe", 
+        description: "Organic farm-to-table cafe with outdoor seating in redwood setting", 
+        rating: 4.4, 
+        priceRange: "$$",
+        localInsight: "The herbs and vegetables come from their garden out back - watch them harvest during your meal",
+        driveTime: "9 min drive",
+        category: "food",
+        cluster: "occidental",
+        hours: { open: 9, close: 16, timeAppropriate: ['morning', 'afternoon'] }
+      },
+      
+      // FORESTVILLE (5-8 miles)
+      { 
+        name: "Russian River Pub", 
+        type: "Family Gastropub", 
+        description: "Laid-back family spot with large outdoor seating and fire pit", 
+        rating: 4.3, 
+        priceRange: "$$",
+        localInsight: "The outdoor fire pit is perfect for chilly Russian River evenings - s'mores available!",
+        driveTime: "7 min drive",
+        category: "food",
+        cluster: "forestville",
+        hours: { open: 11, close: 21, timeAppropriate: ['afternoon', 'evening'] }
+      },
+      
+      // COASTAL/BODEGA BAY (22-28 miles)
+      { 
+        name: "Terrapin Creek Cafe", 
+        type: "Coastal Fine Dining", 
+        description: "Award-winning restaurant featuring fresh Sonoma Coast cuisine", 
+        rating: 4.8, 
+        priceRange: "$$$$",
+        localInsight: "Chef Kenny Kan sources directly from local fishermen - menu changes with daily catch",
+        driveTime: "28 min drive",
+        category: "food",
+        cluster: "coastal",
+        hours: { open: 17, close: 21, timeAppropriate: ['evening'] },
+        signature: true
+      },
+      { 
+        name: "Spud Point Crab Company", 
+        type: "Waterfront Seafood Shack", 
+        description: "Family-owned crab shack with bay views and fresh Dungeness crab", 
+        rating: 4.5, 
+        priceRange: "$$",
+        localInsight: "Come at sunset for the best crab sandwich and harbor views - cash only!",
+        driveTime: "26 min drive",
+        category: "food",
+        cluster: "coastal",
+        hours: { open: 9, close: 18, timeAppropriate: ['morning', 'afternoon'] }
+      },
+      { 
+        name: "Jilly's Roadhouse", 
+        type: "Coastal Roadhouse", 
+        description: "Jenner roadhouse with ocean views and hearty American fare", 
+        rating: 4.2, 
+        priceRange: "$$",
+        localInsight: "Stop here on the drive to the coast - the burger and beer combo is a local favorite",
+        driveTime: "24 min drive",
+        category: "food",
+        cluster: "coastal",
+        hours: { open: 11, close: 20, timeAppropriate: ['afternoon', 'evening'] }
+      },
+      { 
+        name: "River's End Restaurant", 
+        type: "Oceanfront Fine Dining", 
+        description: "Upscale restaurant perched on cliffs above the Pacific", 
+        rating: 4.7, 
+        priceRange: "$$$",
+        localInsight: "Reserve a sunset table - the view of Goat Rock is magical",
+        driveTime: "22 min drive",
+        category: "food",
+        cluster: "coastal",
+        hours: { open: 17, close: 21, timeAppropriate: ['evening'] }
       }
     ],
+    
     coffee: [
+      // GUERNEVILLE
       { 
         name: "Coffee Bazaar", 
         type: "Local Coffee Roastery", 
@@ -160,8 +293,51 @@ const RioNidoLodgeApp = () => {
         category: "coffee",
         cluster: "downtown",
         hours: { open: 8, close: 16, timeAppropriate: ['morning', 'afternoon'] }
+      },
+      
+      // FORESTVILLE  
+      { 
+        name: "Nightingale Breads", 
+        type: "Weekend Bakery & Coffee", 
+        description: "Tiny bakery with incredible baklava-inspired cinnamon rolls", 
+        rating: 4.8, 
+        priceRange: "$$",
+        localInsight: "Only open weekends - the cinnamon rolls sell out by 11am so arrive early!",
+        driveTime: "8 min drive",
+        category: "coffee",
+        cluster: "forestville",
+        hours: { open: 8, close: 14, timeAppropriate: ['morning', 'afternoon'] }
+      },
+      
+      // SEBASTOPOL
+      { 
+        name: "The Wild Poppy Cafe & Market", 
+        type: "Organic Cafe", 
+        description: "Organic cafe famous for their tofu banh mi with amazing BBQ sauce", 
+        rating: 4.5, 
+        priceRange: "$$",
+        localInsight: "Even meat-eaters rave about the tofu banh mi - the BBQ sauce is the secret",
+        driveTime: "12 min drive",
+        category: "coffee",
+        cluster: "sebastopol",
+        hours: { open: 7, close: 15, timeAppropriate: ['morning', 'afternoon'] }
+      },
+      
+      // COASTAL
+      { 
+        name: "Cafe Aquatica", 
+        type: "Coastal Cafe", 
+        description: "Waterfront coffee and light breakfast on the way to Jenner", 
+        rating: 4.6, 
+        priceRange: "$$",
+        localInsight: "Perfect coffee stop before exploring the coast - get a table on the deck",
+        driveTime: "22 min drive",
+        category: "coffee",
+        cluster: "coastal",
+        hours: { open: 7, close: 16, timeAppropriate: ['morning', 'afternoon'] }
       }
     ],
+    
     wine: [
       { 
         name: "Korbel Champagne Cellars", 
@@ -212,8 +388,21 @@ const RioNidoLodgeApp = () => {
         category: "wine",
         cluster: "russian_river",
         hours: { open: 10, close: 16, timeAppropriate: ['morning', 'afternoon'] }
+      },
+      { 
+        name: "Cork's at Russian River Vineyards", 
+        type: "Winery Restaurant", 
+        description: "Winery with full restaurant featuring wine pairings", 
+        rating: 4.3, 
+        priceRange: "$$$",
+        localInsight: "Each dish is paired with their wines - the vineyard view from the deck is stunning",
+        driveTime: "7 min drive",
+        category: "wine",
+        cluster: "forestville",
+        hours: { open: 11, close: 18, timeAppropriate: ['afternoon'] }
       }
     ],
+    
     arts: [
       { 
         name: "Guerneville Arts Center", 
@@ -238,8 +427,21 @@ const RioNidoLodgeApp = () => {
         category: "arts",
         cluster: "russian_river",
         hours: { open: 8, close: 18, timeAppropriate: ['morning', 'afternoon'] }
+      },
+      { 
+        name: "The Barlow Arts District", 
+        type: "Creative Arts Campus", 
+        description: "Sebastopol's creative hub with galleries, studios, and artisan workshops", 
+        rating: 4.6, 
+        priceRange: "Free",
+        localInsight: "Watch glassblowers, woodworkers, and ceramicists at work - many offer mini-classes",
+        driveTime: "12 min drive",
+        category: "arts",
+        cluster: "sebastopol",
+        hours: { open: 10, close: 18, timeAppropriate: ['morning', 'afternoon'] }
       }
     ],
+    
     nature: [
       { 
         name: "Armstrong Redwoods State Natural Reserve", 
@@ -325,9 +527,23 @@ const RioNidoLodgeApp = () => {
         category: "nature",
         cluster: "coastal",
         hours: { open: 9, close: 17, timeAppropriate: ['morning', 'afternoon'] }
+      },
+      { 
+        name: "Austin Creek State Recreation Area", 
+        type: "Hiking & Camping", 
+        description: "Remote hiking trails through diverse ecosystems and old-growth forest", 
+        rating: 4.3, 
+        priceRange: "$10 parking",
+        localInsight: "The Gilliam Creek Trail leads to a hidden waterfall - best in late winter/spring",
+        driveTime: "12 min drive",
+        category: "nature",
+        cluster: "russian_river",
+        hours: { open: 8, close: 19, timeAppropriate: ['morning', 'afternoon'] }
       }
     ],
+    
     shopping: [
+      // GUERNEVILLE
       { 
         name: "Antique Society", 
         type: "Vintage Treasures", 
@@ -340,6 +556,8 @@ const RioNidoLodgeApp = () => {
         cluster: "downtown",
         hours: { open: 10, close: 17, timeAppropriate: ['morning', 'afternoon'] }
       },
+      
+      // SEBASTOPOL  
       { 
         name: "Andy's Local Market", 
         type: "Family-Owned Grocery", 
@@ -349,7 +567,7 @@ const RioNidoLodgeApp = () => {
         localInsight: "Best selection of local wines and the staff knows every producer personally",
         driveTime: "15 min drive",
         category: "shopping",
-        cluster: "russian_river",
+        cluster: "sebastopol",
         hours: { open: 7, close: 21, timeAppropriate: ['morning', 'afternoon', 'evening'] }
       },
       { 
@@ -361,9 +579,23 @@ const RioNidoLodgeApp = () => {
         localInsight: "Their deli makes the best sandwiches for river picnics - try the 'Sonoma Turkey'",
         driveTime: "12 min drive",
         category: "shopping",
-        cluster: "russian_river",
+        cluster: "sebastopol",
         hours: { open: 6, close: 22, timeAppropriate: ['morning', 'afternoon', 'evening'] }
       },
+      { 
+        name: "Peter Lowell's Delicatessen", 
+        type: "Gourmet Deli", 
+        description: "Gourmet deli with local meats, artisan cheeses, and wine selection", 
+        rating: 4.5, 
+        priceRange: "$$",
+        localInsight: "Their sandwich combinations are legendary - the 'Sebastopol Special' uses 5 local ingredients",
+        driveTime: "13 min drive",
+        category: "shopping",
+        cluster: "sebastopol",
+        hours: { open: 7, close: 19, timeAppropriate: ['morning', 'afternoon'] }
+      },
+      
+      // COASTAL/BODEGA BAY
       { 
         name: "Candy & Kites", 
         type: "Bodega Bay Taffy Shop", 
@@ -415,7 +647,7 @@ const RioNidoLodgeApp = () => {
     ]
   };
 
-  // Signature Experiences with FULL booking details
+  // Signature Experiences - CHANGED TO "LOCAL"
   const signatureExperiences = [
     {
       id: 'redwood_meditation',
@@ -468,7 +700,7 @@ const RioNidoLodgeApp = () => {
     { id: 'shopping', label: 'Local Shopping', icon: '🛍️' }
   ];
 
-  // Travel style options - EXACTLY as you like them
+  // Travel style options
   const travelStyles = [
     { id: 'relaxed', label: 'Relaxed Explorer', description: '2-3 activities per day' },
     { id: 'balanced', label: 'Balanced Adventure', description: '4-5 activities per day' },
@@ -497,9 +729,9 @@ const RioNidoLodgeApp = () => {
     // If no interests selected, add some defaults to prevent empty days
     if (allRecommendations.length === 0) {
       allRecommendations = [
-        ...businessDatabase.food.slice(0, 2),
+        ...businessDatabase.food.slice(0, 3),
         ...businessDatabase.nature.slice(0, 2),
-        ...businessDatabase.coffee.slice(0, 1)
+        ...businessDatabase.coffee.slice(0, 2)
       ];
     }
 
@@ -536,7 +768,7 @@ const RioNidoLodgeApp = () => {
         index === self.findIndex(b => b.name === business.name))
       .sort((a, b) => b.score - a.score);
 
-    // **CRITICAL FIX: Proper day distribution algorithm**
+    // **FIXED: Proper day distribution algorithm with better variety**
     const distributedItinerary = [];
     
     for (let day = 1; day <= guestData.tripDuration; day++) {
@@ -550,7 +782,7 @@ const RioNidoLodgeApp = () => {
         }
       }
       
-      // If we still don't have enough activities, add more from the beginning
+      // If we still don't have enough activities, add more from different clusters
       while (dayActivities.length < maxActivitiesPerDay && dayActivities.length < uniqueRecommendations.length) {
         const remainingBusinesses = uniqueRecommendations.filter(
           business => !dayActivities.find(activity => activity.name === business.name)
@@ -569,7 +801,7 @@ const RioNidoLodgeApp = () => {
         if (!a.hours.timeAppropriate.includes('morning') && b.hours.timeAppropriate.includes('morning')) return 1;
         
         // Then by cluster for efficient routing
-        const clusterOrder = ['downtown', 'russian_river', 'coastal'];
+        const clusterOrder = ['downtown', 'forestville', 'sebastopol', 'russian_river', 'occidental', 'coastal'];
         return clusterOrder.indexOf(a.cluster) - clusterOrder.indexOf(b.cluster);
       });
       
@@ -620,7 +852,7 @@ const RioNidoLodgeApp = () => {
     }));
   };
 
-  // Signature Experience Modal Component - COMPLETE WITH BOOKING
+  // Signature Experience Modal Component
   const SignatureExperienceModal = () => {
     if (!showSignatureModal || !selectedSignatureExperience) return null;
     
@@ -833,7 +1065,7 @@ const RioNidoLodgeApp = () => {
           </div>
         </div>
 
-        {/* Travel Style - EXACTLY AS YOU LIKE IT */}
+        {/* Travel Style */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-4">Your Travel Style</label>
           <div className="space-y-3">
@@ -912,6 +1144,19 @@ const RioNidoLodgeApp = () => {
     </div>
   );
 
+  // Get cluster display name
+  const getClusterName = (cluster) => {
+    const clusterNames = {
+      'downtown': 'Downtown Guerneville',
+      'sebastopol': 'Sebastopol Route',
+      'occidental': 'Occidental Route', 
+      'forestville': 'Forestville Route',
+      'russian_river': 'Russian River Valley',
+      'coastal': 'Coastal Adventures'
+    };
+    return clusterNames[cluster] || cluster;
+  };
+
   // Itinerary display component
   const ItineraryDisplay = () => (
     <div className="max-w-4xl mx-auto">
@@ -936,12 +1181,12 @@ const RioNidoLodgeApp = () => {
         </div>
       </div>
 
-      {/* CLICKABLE Signature Experiences */}
+      {/* CLICKABLE Signature Experiences - CHANGED TO "LOCAL" */}
       {guestData.interests.includes('wine') || guestData.interests.includes('nature') ? (
         <div className="bg-gradient-to-r from-amber-50 to-red-50 rounded-2xl shadow-lg p-6 mb-8 border border-amber-200">
           <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center">
             <span className="text-2xl mr-2">⭐</span>
-            Exclusive 15-Mile Signature Experiences
+            Exclusive Local Signature Experiences
           </h2>
           <div className="grid md:grid-cols-3 gap-6">
             {signatureExperiences.map(experience => (
@@ -987,9 +1232,7 @@ const RioNidoLodgeApp = () => {
               </h2>
               <p className="text-red-100 mt-1">{day.date}</p>
               <div className="mt-2 text-red-200 text-sm">
-                🗺️ {day.cluster === 'downtown' ? 'Downtown Guerneville Focus' : 
-                     day.cluster === 'russian_river' ? 'Russian River Valley Focus' : 
-                     'Coastal Adventures Focus'}
+                🗺️ {getClusterName(day.cluster)} Focus
               </div>
             </div>
             
@@ -1047,7 +1290,7 @@ const RioNidoLodgeApp = () => {
                         
                         <div className="flex items-center mt-3 text-sm text-gray-600 space-x-4">
                           <span>⏰ Open {activity.hours.open}:00 - {activity.hours.close}:00</span>
-                          <span>📍 {activity.cluster.replace('_', ' ').toUpperCase()}</span>
+                          <span>📍 {getClusterName(activity.cluster)}</span>
                           {activity.signature && (
                             <span className="bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs font-medium">
                               ⭐ Signature Experience
