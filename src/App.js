@@ -16,6 +16,11 @@ const RioNidoLodgeApp = () => {
   const [currentDay, setCurrentDay] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedExperience, setSelectedExperience] = useState(null);
+  const [showAllSignatures, setShowAllSignatures] = useState(false);
+  const [signatureSearchTerm, setSignatureSearchTerm] = useState('');
+  const [showExperienceSearch, setShowExperienceSearch] = useState(false);
+  const [experienceSearchTerm, setExperienceSearchTerm] = useState('');
+  const [selectedAnchorExperience, setSelectedAnchorExperience] = useState(null);
 
   const hotelConfig = {
     name: "Rio Nido Lodge",
@@ -549,64 +554,133 @@ const RioNidoLodgeApp = () => {
 
   const signatureExperiences = businessDatabase.filter(business => business.isSignature);
 
-  // Get signature experiences based on selected interests
-  const getInterestBasedSignatureExperiences = () => {
-    if (guestData.interests.length === 0) {
-      // If no interests selected, show first 3 with variety
-      return signatureExperiences.slice(0, 3);
+  // Get all experiences (for comprehensive search)
+  const getAllExperiences = () => {
+    return filterBusinessesByBudget(businessDatabase, guestData.budget);
+  };
+
+  // Search all experiences
+  const getSearchedExperiences = () => {
+    if (!experienceSearchTerm.trim()) {
+      return getAllExperiences();
     }
 
-    // First, get signature experiences that match selected interests
-    const matchingExperiences = signatureExperiences.filter(experience => 
+    const searchTerm = experienceSearchTerm.toLowerCase();
+    return getAllExperiences().filter(exp => 
+      exp.name.toLowerCase().includes(searchTerm) ||
+      exp.description.toLowerCase().includes(searchTerm) ||
+      exp.specialties?.some(specialty => specialty.toLowerCase().includes(searchTerm)) ||
+      exp.category.toLowerCase().includes(searchTerm) ||
+      exp.type.toLowerCase().includes(searchTerm)
+    );
+  };
+
+  // Plan day around selected experience
+  const planDayAroundExperience = (experience) => {
+    setSelectedAnchorExperience(experience);
+    setIsModalOpen(false);
+    setShowExperienceSearch(false);
+    
+    // Scroll to generate itinerary button to encourage planning
+    setTimeout(() => {
+      const button = document.querySelector('.generate-itinerary-btn');
+      if (button) {
+        button.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }, 300);
+  };
+  const getFilteredSignatureExperiences = () => {
+    // Apply budget filtering to all signature experiences
+    const budgetFiltered = filterBusinessesByBudget(signatureExperiences, guestData.budget);
+    
+    // Apply search filter if there's a search term
+    if (signatureSearchTerm.trim()) {
+      return budgetFiltered.filter(exp => 
+        exp.name.toLowerCase().includes(signatureSearchTerm.toLowerCase()) ||
+        exp.description.toLowerCase().includes(signatureSearchTerm.toLowerCase()) ||
+        exp.specialties.some(specialty => specialty.toLowerCase().includes(signatureSearchTerm.toLowerCase())) ||
+        exp.category.toLowerCase().includes(signatureSearchTerm.toLowerCase())
+      );
+    }
+    
+    return budgetFiltered;
+  };
+
+  // Get signature experiences based on selected interests (for the featured 3)
+  const getInterestBasedSignatureExperiences = () => {
+    if (guestData.interests.length === 0) {
+      // If no interests selected, show diverse mix of top-rated experiences
+      const allFiltered = getFilteredSignatureExperiences();
+      const diverseSelection = [];
+      const usedCategories = new Set();
+      const usedBudgets = new Set();
+
+      // Prioritize diversity across categories and budgets
+      for (const exp of allFiltered.sort((a, b) => b.rating - a.rating)) {
+        if (diverseSelection.length >= 3) break;
+        
+        const categoryBonus = !usedCategories.has(exp.category) ? 2 : 0;
+        const budgetBonus = !usedBudgets.has(exp.budget) ? 1 : 0;
+        
+        if (diverseSelection.length === 0 || categoryBonus > 0 || budgetBonus > 0) {
+          diverseSelection.push(exp);
+          usedCategories.add(exp.category);
+          usedBudgets.add(exp.budget);
+        }
+      }
+
+      // Fill remaining slots with best options
+      for (const exp of allFiltered) {
+        if (diverseSelection.length >= 3) break;
+        if (!diverseSelection.includes(exp)) {
+          diverseSelection.push(exp);
+        }
+      }
+
+      return diverseSelection.slice(0, 3);
+    }
+
+    // Get experiences matching selected interests
+    const allFiltered = getFilteredSignatureExperiences();
+    const matchingExperiences = allFiltered.filter(experience => 
       guestData.interests.includes(experience.category)
     );
 
-    // Apply budget filtering to matching experiences
-    const budgetFilteredMatching = filterBusinessesByBudget(matchingExperiences, guestData.budget);
-
-    // Then get remaining signature experiences (different categories)
-    const otherExperiences = signatureExperiences.filter(experience => 
-      !guestData.interests.includes(experience.category)
-    );
-    const budgetFilteredOthers = filterBusinessesByBudget(otherExperiences, guestData.budget);
-
-    // Create diverse mix: prioritize variety across categories and budgets
+    // Create diverse mix prioritizing user interests
     const diverseExperiences = [];
     const usedCategories = new Set();
     const usedBudgets = new Set();
 
-    // First pass: Add matching experiences with category/budget diversity
-    for (const exp of budgetFilteredMatching) {
+    // First pass: Add matching experiences with diversity
+    for (const exp of matchingExperiences.sort((a, b) => b.rating - a.rating)) {
       if (diverseExperiences.length >= 3) break;
-      if (!usedCategories.has(exp.category) || usedCategories.size < guestData.interests.length) {
+      if (!usedCategories.has(exp.category) || usedCategories.size < Math.min(3, guestData.interests.length)) {
         diverseExperiences.push(exp);
         usedCategories.add(exp.category);
         usedBudgets.add(exp.budget);
       }
     }
 
-    // Second pass: Fill remaining slots prioritizing budget diversity
-    const allAvailable = [...budgetFilteredMatching, ...budgetFilteredOthers];
-    for (const exp of allAvailable) {
+    // Second pass: Fill with different budget levels from interests
+    for (const exp of matchingExperiences) {
       if (diverseExperiences.length >= 3) break;
-      if (!diverseExperiences.includes(exp)) {
-        // Prefer experiences with different budget levels
-        if (!usedBudgets.has(exp.budget) || usedBudgets.size < 2) {
-          diverseExperiences.push(exp);
-          usedBudgets.add(exp.budget);
-        }
+      if (!diverseExperiences.includes(exp) && !usedBudgets.has(exp.budget)) {
+        diverseExperiences.push(exp);
+        usedBudgets.add(exp.budget);
       }
     }
 
-    // Third pass: Fill any remaining slots with best remaining options
-    for (const exp of allAvailable) {
+    // Third pass: Fill remaining with other categories if needed
+    const otherExperiences = allFiltered.filter(experience => 
+      !guestData.interests.includes(experience.category)
+    );
+    for (const exp of otherExperiences.sort((a, b) => b.rating - a.rating)) {
       if (diverseExperiences.length >= 3) break;
       if (!diverseExperiences.includes(exp)) {
         diverseExperiences.push(exp);
       }
     }
     
-    // Return first 3 with maximum diversity
     return diverseExperiences.slice(0, 3);
   };
 
@@ -645,31 +719,59 @@ const RioNidoLodgeApp = () => {
     const availableSignatures = relevantBusinesses.filter(business => business.isSignature);
     const regularActivities = relevantBusinesses.filter(business => !business.isSignature);
 
-    // Create diverse signature experience selection for itinerary
-    const diverseSignatures = [];
-    const usedCategories = new Set();
-    const usedBudgets = new Set();
+    // If user selected an anchor experience, prioritize it for Day 1
+    let diverseSignatures = [];
+    if (selectedAnchorExperience) {
+      diverseSignatures.push(selectedAnchorExperience);
+      
+      // Add other diverse signatures for remaining days
+      const remainingSignatures = availableSignatures.filter(sig => sig !== selectedAnchorExperience);
+      const usedCategories = new Set([selectedAnchorExperience.category]);
+      const usedBudgets = new Set([selectedAnchorExperience.budget]);
 
-    // Prioritize diversity across categories and budgets
-    for (const sig of availableSignatures) {
-      if (diverseSignatures.length >= guestData.tripDuration) break;
-      
-      // Prefer experiences from different categories and budget levels
-      const categoryBonus = !usedCategories.has(sig.category) ? 2 : 0;
-      const budgetBonus = !usedBudgets.has(sig.budget) ? 1 : 0;
-      
-      if (diverseSignatures.length === 0 || categoryBonus > 0 || budgetBonus > 0) {
-        diverseSignatures.push(sig);
-        usedCategories.add(sig.category);
-        usedBudgets.add(sig.budget);
+      for (const sig of remainingSignatures) {
+        if (diverseSignatures.length >= guestData.tripDuration) break;
+        
+        const categoryBonus = !usedCategories.has(sig.category) ? 2 : 0;
+        const budgetBonus = !usedBudgets.has(sig.budget) ? 1 : 0;
+        
+        if (categoryBonus > 0 || budgetBonus > 0) {
+          diverseSignatures.push(sig);
+          usedCategories.add(sig.category);
+          usedBudgets.add(sig.budget);
+        }
       }
-    }
 
-    // Fill any remaining signature slots with best remaining options
-    for (const sig of availableSignatures) {
-      if (diverseSignatures.length >= guestData.tripDuration) break;
-      if (!diverseSignatures.includes(sig)) {
-        diverseSignatures.push(sig);
+      // Fill remaining slots
+      for (const sig of remainingSignatures) {
+        if (diverseSignatures.length >= guestData.tripDuration) break;
+        if (!diverseSignatures.includes(sig)) {
+          diverseSignatures.push(sig);
+        }
+      }
+    } else {
+      // Original diverse signature selection logic
+      const usedCategories = new Set();
+      const usedBudgets = new Set();
+
+      for (const sig of availableSignatures) {
+        if (diverseSignatures.length >= guestData.tripDuration) break;
+        
+        const categoryBonus = !usedCategories.has(sig.category) ? 2 : 0;
+        const budgetBonus = !usedBudgets.has(sig.budget) ? 1 : 0;
+        
+        if (diverseSignatures.length === 0 || categoryBonus > 0 || budgetBonus > 0) {
+          diverseSignatures.push(sig);
+          usedCategories.add(sig.category);
+          usedBudgets.add(sig.budget);
+        }
+      }
+
+      for (const sig of availableSignatures) {
+        if (diverseSignatures.length >= guestData.tripDuration) break;
+        if (!diverseSignatures.includes(sig)) {
+          diverseSignatures.push(sig);
+        }
       }
     }
 
@@ -694,11 +796,13 @@ const RioNidoLodgeApp = () => {
       
       // Add ONE signature experience for this day (if available)
       if (diverseSignatures[day - 1]) {
+        const isSelectedAnchor = diverseSignatures[day - 1] === selectedAnchorExperience;
         dayActivities.push({
           time: '10:00 AM',
           activity: diverseSignatures[day - 1],
           hasAlternates: guestData.allowAlternateDestinations && diverseSignatures[day - 1].alternateDestinations?.length > 0,
-          isAnchorExperience: true
+          isAnchorExperience: true,
+          isSelectedByUser: isSelectedAnchor
         });
       }
 
@@ -714,7 +818,8 @@ const RioNidoLodgeApp = () => {
           time: timeSlots[timeIndex] || `${3 + i}:00 PM`,
           activity: regularActivities[regularActivityIndex],
           hasAlternates: guestData.allowAlternateDestinations && regularActivities[regularActivityIndex].alternateDestinations?.length > 0,
-          isAnchorExperience: false
+          isAnchorExperience: false,
+          isSelectedByUser: false
         });
         regularActivityIndex++;
       }
@@ -736,13 +841,17 @@ const RioNidoLodgeApp = () => {
           }),
           activities: dayActivities,
           totalActivities: dayActivities.length,
-          hasSignatureExperience: dayActivities.some(activity => activity.isAnchorExperience)
+          hasSignatureExperience: dayActivities.some(activity => activity.isAnchorExperience),
+          hasSelectedAnchor: dayActivities.some(activity => activity.isSelectedByUser)
         });
       }
     }
 
     setGeneratedItinerary(itinerary);
     setCurrentDay(1);
+    
+    // Clear selected anchor after generating itinerary
+    setSelectedAnchorExperience(null);
   };
 
   const openExperienceModal = (experience) => {
@@ -929,10 +1038,30 @@ const RioNidoLodgeApp = () => {
 
                 <button
                   onClick={generateItinerary}
-                  className="w-full bg-gradient-to-r from-red-700 to-red-800 text-white py-4 px-8 rounded-xl hover:from-red-800 hover:to-red-900 transition-all duration-300 font-semibold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                  className="w-full bg-gradient-to-r from-red-700 to-red-800 text-white py-4 px-8 rounded-xl hover:from-red-800 hover:to-red-900 transition-all duration-300 font-semibold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 generate-itinerary-btn"
                 >
-                  Generate My Itinerary
+                  {selectedAnchorExperience 
+                    ? `Plan Day Around ${selectedAnchorExperience.name}`
+                    : 'Generate My Itinerary'
+                  }
                 </button>
+
+                {selectedAnchorExperience && (
+                  <div className="mt-4 p-4 bg-purple-50 rounded-lg border border-purple-200">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-purple-800">Selected Anchor Experience:</p>
+                        <p className="text-purple-700">{selectedAnchorExperience.name}</p>
+                      </div>
+                      <button
+                        onClick={() => setSelectedAnchorExperience(null)}
+                        className="text-purple-600 hover:text-purple-800 text-sm"
+                      >
+                        ✕ Remove
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -950,6 +1079,8 @@ const RioNidoLodgeApp = () => {
                   }
                 </p>
               </div>
+
+              {/* Featured Signature Experiences */}
               <div className="space-y-6">
                 {getInterestBasedSignatureExperiences().map((experience, index) => {
                   const isMatchingInterest = guestData.interests.includes(experience.category);
@@ -993,6 +1124,152 @@ const RioNidoLodgeApp = () => {
                   </div>
                 )})}
               </div>
+
+              {/* Search All Experiences */}
+              <div className="mt-8">
+                <button
+                  onClick={() => setShowExperienceSearch(!showExperienceSearch)}
+                  className="w-full py-3 px-4 bg-gradient-to-r from-amber-100 to-amber-200 text-amber-800 rounded-lg hover:from-amber-200 hover:to-amber-300 transition-colors font-medium"
+                >
+                  {showExperienceSearch ? 'Hide Experience Search' : 'Search All Experiences'}
+                  <span className="ml-2">{showExperienceSearch ? '↑' : '🔍'}</span>
+                </button>
+
+                {showExperienceSearch && (
+                  <div className="mt-6">
+                    {/* Search Bar */}
+                    <div className="mb-6">
+                      <input
+                        type="text"
+                        placeholder="Search all experiences... (e.g., 'hot air balloon', 'Williams Selyem', 'spa')"
+                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                        value={experienceSearchTerm}
+                        onChange={(e) => setExperienceSearchTerm(e.target.value)}
+                      />
+                      <p className="text-xs text-gray-500 mt-2">
+                        Search all wineries, restaurants, activities, and signature experiences
+                      </p>
+                    </div>
+
+                    {/* Search Results */}
+                    <div className="grid grid-cols-1 gap-3 max-h-96 overflow-y-auto">
+                      {getSearchedExperiences().map((experience, index) => (
+                        <div
+                          key={index}
+                          className="p-4 border border-gray-200 rounded-lg hover:border-amber-300 hover:bg-amber-50 cursor-pointer transition-all"
+                        >
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1" onClick={() => openExperienceModal(experience)}>
+                              <div className="flex items-center space-x-2 mb-1">
+                                <h5 className="font-medium text-gray-900">{experience.name}</h5>
+                                {experience.isSignature && (
+                                  <span className="text-xs px-2 py-1 rounded-full bg-purple-100 text-purple-600">
+                                    ✨ Signature
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-xs text-gray-600 mb-2">{experience.description}</p>
+                              <div className="flex items-center space-x-2">
+                                <span className={`text-xs px-2 py-1 rounded-full ${getBudgetColor(experience.budget)}`}>
+                                  {getBudgetIcon(experience.budget)} {experience.budget}
+                                </span>
+                                <span className="text-xs text-gray-500">{experience.driveTime}</span>
+                                <span className="text-xs text-gray-500">⭐ {experience.rating}</span>
+                                <span className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-600">
+                                  {experience.category}
+                                </span>
+                              </div>
+                            </div>
+                            <div className="ml-3 flex flex-col space-y-2">
+                              <button
+                                onClick={() => openExperienceModal(experience)}
+                                className="text-xs px-3 py-1 bg-blue-100 text-blue-700 rounded-full hover:bg-blue-200 transition-colors"
+                              >
+                                Learn More
+                              </button>
+                              <button
+                                onClick={() => planDayAroundExperience(experience)}
+                                className="text-xs px-3 py-1 bg-purple-100 text-purple-700 rounded-full hover:bg-purple-200 transition-colors"
+                              >
+                                Plan Day Around This
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                      
+                      {getSearchedExperiences().length === 0 && experienceSearchTerm.trim() && (
+                        <div className="text-center py-8 text-gray-500">
+                          <span className="text-2xl block mb-2">🔍</span>
+                          No experiences found matching "{experienceSearchTerm}".
+                          <br />
+                          <span className="text-xs">Try searching for "wine", "spa", "hiking", or specific business names.</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Browse All Signature Experiences */}
+              <div className="mt-8">
+                <button
+                  onClick={() => setShowAllSignatures(!showAllSignatures)}
+                  className="w-full py-3 px-4 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-colors font-medium"
+                >
+                  {showAllSignatures ? 'Hide All Signature Experiences' : 'Browse All Signature Experiences'}
+                  <span className="ml-2">{showAllSignatures ? '↑' : '↓'}</span>
+                </button>
+
+                {showAllSignatures && (
+                  <div className="mt-6">
+                    {/* Search Bar */}
+                    <div className="mb-6">
+                      <input
+                        type="text"
+                        placeholder="Search signature experiences..."
+                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        value={signatureSearchTerm}
+                        onChange={(e) => setSignatureSearchTerm(e.target.value)}
+                      />
+                    </div>
+
+                    {/* All Signature Experiences */}
+                    <div className="grid grid-cols-1 gap-4 max-h-96 overflow-y-auto">
+                      {getFilteredSignatureExperiences().map((experience, index) => (
+                        <div
+                          key={index}
+                          onClick={() => openExperienceModal(experience)}
+                          className="p-4 border border-gray-200 rounded-lg hover:border-purple-300 hover:bg-purple-50 cursor-pointer transition-all"
+                        >
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <h5 className="font-medium text-gray-900 mb-1">{experience.name}</h5>
+                              <p className="text-xs text-gray-600 mb-2">{experience.description}</p>
+                              <div className="flex items-center space-x-2">
+                                <span className={`text-xs px-2 py-1 rounded-full ${getBudgetColor(experience.budget)}`}>
+                                  {getBudgetIcon(experience.budget)} {experience.budget}
+                                </span>
+                                <span className="text-xs text-gray-500">{experience.driveTime}</span>
+                                <span className="text-xs text-gray-500">⭐ {experience.rating}</span>
+                              </div>
+                            </div>
+                            <span className="text-purple-400 ml-2">✨</span>
+                          </div>
+                        </div>
+                      ))}
+                      
+                      {getFilteredSignatureExperiences().length === 0 && (
+                        <div className="text-center py-8 text-gray-500">
+                          <span className="text-2xl block mb-2">🔍</span>
+                          No signature experiences found matching your search.
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+
               <div className="mt-8 text-center">
                 <p className="text-xs text-gray-500 italic">
                   {guestData.interests.length > 0 
@@ -1061,6 +1338,12 @@ const RioNidoLodgeApp = () => {
                               Anchor Day
                             </span>
                           )}
+                          {currentDayData.hasSelectedAnchor && (
+                            <span className="ml-2 text-xs px-2 py-1 rounded-full bg-amber-100 text-amber-700">
+                              <span className="mr-1">🎯</span>
+                              Your Choice
+                            </span>
+                          )}
                         </h3>
                         <p className="text-gray-600">{currentDayData.date}</p>
                       </div>
@@ -1077,9 +1360,13 @@ const RioNidoLodgeApp = () => {
                                     {getBudgetIcon(item.activity.budget)} {item.activity.budget}
                                   </span>
                                   {item.activity.isSignature && (
-                                    <span className="text-xs px-2 py-1 rounded-full bg-purple-50 text-purple-600">
+                                    <span className={`text-xs px-2 py-1 rounded-full ${
+                                      item.isSelectedByUser 
+                                        ? 'bg-amber-100 text-amber-700' 
+                                        : 'bg-purple-50 text-purple-600'
+                                    }`}>
                                       <span className="mr-1">✨</span>
-                                      {item.isAnchorExperience ? 'Anchor Experience' : 'Signature'}
+                                      {item.isSelectedByUser ? 'Your Choice' : (item.isAnchorExperience ? 'Anchor Experience' : 'Signature')}
                                     </span>
                                   )}
                                 </div>
@@ -1224,6 +1511,12 @@ const RioNidoLodgeApp = () => {
                     <span className="mr-2">📞</span>
                     Call to Book
                   </a>
+                  <button
+                    onClick={() => planDayAroundExperience(selectedExperience)}
+                    className="flex-1 bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 transition-colors"
+                  >
+                    Plan Day Around This
+                  </button>
                   <button
                     onClick={() => setIsModalOpen(false)}
                     className="flex-1 bg-gray-200 text-gray-800 py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors"
